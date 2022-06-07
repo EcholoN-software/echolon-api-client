@@ -26,6 +26,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet pack --configuration Release --include-symbols /p:Version=${{ env.RELEASE_VERSION }} --no-restore
+      run: dotnet pack --configuration Release --include-symbols /p:Version=${{ env.RELEASE_VERSION }} -p:SymbolPackageFormat=snupkg --no-restore
     - name: Publish NuGet
       run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
