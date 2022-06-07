@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [ "master" ]
 
+env:
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/Eco.Echolon.ApiClient/Release/
+  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+
 jobs:
   build:
 
@@ -23,11 +27,4 @@ jobs:
     - name: Build
       run: dotnet pack --configuration Release --no-restore
     - name: Publish NuGet
-      # You may pin to the exact commit or the version.
-      # uses: brandedoutcast/publish-nuget@c12b8546b67672ee38ac87bea491ac94a587f7cc
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-    # Filepath of the project to be packaged, relative to root of repository
-        PROJECT_FILE_PATH: ./Eco.Echolon.ApiClient/
-    # NuGet package id, used for version detection & defaults to project name
-        NUGET_KEY: ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_SECRET }} -s ${{ env.NUGET_SOURCE_URL }}
