@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eco.Echolon.ApiClient", "Eco.Echolon.ApiClient\Eco.Echolon.ApiClient.csproj", "{2CA6161A-1CC9-494C-ADF9-46579A25BFBF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2CA6161A-1CC9-494C-ADF9-46579A25BFBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CA6161A-1CC9-494C-ADF9-46579A25BFBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CA6161A-1CC9-494C-ADF9-46579A25BFBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CA6161A-1CC9-494C-ADF9-46579A25BFBF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
