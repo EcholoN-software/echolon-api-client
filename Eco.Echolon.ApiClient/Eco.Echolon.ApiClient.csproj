@@ -9,8 +9,8 @@
 
     <PropertyGroup>
         <PackageId>Eco.Echolon.ApiClient</PackageId>
-        <Authors>EcholoN Konsortium</Authors>
-        <Company>EcholoN Konsortium</Company>
+        <Authors>EcholoN</Authors>
+        <Company>mIT solutions GmbH</Company>
         <PackageTags>EcholoN</PackageTags>
         <PackageIcon>EcholoN.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
