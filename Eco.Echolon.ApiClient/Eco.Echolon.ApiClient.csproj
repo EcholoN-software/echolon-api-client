@@ -10,14 +10,16 @@
     <PropertyGroup>
         <PackageId>Eco.Echolon.ApiClient</PackageId>
         <Authors>EcholoN</Authors>
-        <Company>mIT solutions GmbH</Company>
+        <Company>EcholoN</Company>
         <PackageTags>EcholoN</PackageTags>
         <PackageIcon>EcholoN.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadMeFile>../ReadMe.md</PackageReadMeFile>
     </PropertyGroup>
     
     <ItemGroup>
         <None Include="EcholoN.png" Pack="true" PackagePath="\"/>
+        <None Include="../ReadMe.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
     
     <ItemGroup>
