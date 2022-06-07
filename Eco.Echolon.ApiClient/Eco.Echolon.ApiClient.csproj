@@ -9,7 +9,6 @@
 
     <PropertyGroup>
         <PackageId>Eco.Echolon.ApiClient</PackageId>
-        <Version>1.0.0</Version>
         <Authors>EcholoN Konsortium</Authors>
         <Company>EcholoN Konsortium</Company>
         <PackageTags>EcholoN</PackageTags>
