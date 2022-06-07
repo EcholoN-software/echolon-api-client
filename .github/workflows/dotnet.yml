@@ -28,6 +28,6 @@ jobs:
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
     # Filepath of the project to be packaged, relative to root of repository
-        PROJECT_FILE_PATH: Eco.Echolon.ApiClient/
+        PROJECT_FILE_PATH: ./Eco.Echolon.ApiClient/
     # NuGet package id, used for version detection & defaults to project name
         NUGET_KEY: ${{ secrets.GITHUB_TOKEN }}
