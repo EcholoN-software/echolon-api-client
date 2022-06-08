@@ -15,6 +15,9 @@
         <PackageIcon>EcholoN.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadMeFile>ReadMe.md</PackageReadMeFile>
+        <Description>.NET API Client for EcholoN Service Management Suite</Description>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/EcholoN-software/echolon-api-client</RepositoryUrl>
     </PropertyGroup>
     
     <ItemGroup>
