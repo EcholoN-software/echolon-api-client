@@ -1,4 +1,4 @@
-name: .NET
+name: PullRequestBuild
 
 on:
   pull_request:
@@ -21,4 +21,4 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet pack --configuration Release --include-symbols /p:Version=${{ env.RELEASE_VERSION }} -p:SymbolPackageFormat=snupkg --no-restore
+      run: dotnet pack --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --no-restore
