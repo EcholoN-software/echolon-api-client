@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+using System;
 using Eco.Echolon.ApiClient.Log;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;

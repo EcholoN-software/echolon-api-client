@@ -1,4 +1,7 @@
-﻿namespace Eco.Echolon.ApiClient.Authentication
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+namespace Eco.Echolon.ApiClient.Authentication
 {
     /// <summary>
     ///     Abstraction for caching client access tokens.
