@@ -1,0 +1,24 @@
+name: .NET
+
+on:
+  pull_request:
+    branches: [ master ]
+
+env:
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/Eco.Echolon.ApiClient/bin/Release
+  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet pack --configuration Release --include-symbols /p:Version=${{ env.RELEASE_VERSION }} -p:SymbolPackageFormat=snupkg --no-restore
