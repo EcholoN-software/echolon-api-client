@@ -14,12 +14,12 @@
         <PackageTags>EcholoN</PackageTags>
         <PackageIcon>EcholoN.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageReadMeFile>../ReadMe.md</PackageReadMeFile>
+        <PackageReadMeFile>ReadMe.md</PackageReadMeFile>
     </PropertyGroup>
     
     <ItemGroup>
-        <None Include="EcholoN.png" Pack="true" PackagePath="\"/>
-        <None Include="../ReadMe.md" Pack="true" PackagePath="\"/>
+        <None Include="EcholoN.png" Pack="true" PackagePath="\" />
+        <None Include="ReadMe.md" Pack="true" PackagePath="\" />
     </ItemGroup>
     
     <ItemGroup>
