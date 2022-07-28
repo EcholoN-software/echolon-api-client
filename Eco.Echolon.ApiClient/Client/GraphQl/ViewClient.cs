@@ -22,7 +22,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         }
 
         public async Task<GraphQlResponse<T[]?>> ViewMultiple<T>(string viewName, int skip = 0, int first = 0, IEnumerable<string>? orderBy = null,
-            IGraphQlFilter? filter = null) where T : class
+            IFilter? filter = null) where T : class
         {
             var parameter = new Dictionary<string, object>();
             parameter["skip"] = skip;
