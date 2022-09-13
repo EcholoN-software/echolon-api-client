@@ -1,5 +1,6 @@
 # .NET API Client for EcholoN Service Management Suite
 [![Build](https://github.com/EcholoN-software/echolon-api-client/actions/workflows/dotnet.yml/badge.svg)](https://github.com/EcholoN-software/echolon-api-client/actions/workflows/dotnet.yml)
+[![NuGet](https://img.shields.io/nuget/v/Eco.Echolon.ApiClient.svg?style=flat)](http://www.nuget.org/packages/Eco.Echolon.ApiClient/)
 
 This Repository contains the code for the .NET API Client for [EcholoN](https://www.echolon.de) Service Management Suite
 
