@@ -2,11 +2,11 @@ using Eco.Echolon.ApiClient.Filter.Visitor;
 
 namespace Eco.Echolon.ApiClient.Filter.Values
 {
-    public class ConstantValue : SingleValueFilter
+    public class ConstantValue<TValue> : SingleValueFilter<TValue>
     {
-        public object Value { get; }
+        public TValue Value { get; }
 
-        public ConstantValue(object value)
+        public ConstantValue(TValue value)
         {
             Value = value;
         }

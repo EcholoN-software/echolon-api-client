@@ -3,12 +3,12 @@ using Eco.Echolon.ApiClient.Filter.Visitor;
 
 namespace Eco.Echolon.ApiClient.Filter
 {
-    public abstract class MultiValueFieldComparison : IFieldComparisonFilter<MultiValueFilter>
+    public abstract class MultiValueFieldComparison<TValue> : IFieldComparisonFilter<MultiValueFilter<TValue>, TValue>
     {
         public string Field { get; }
-        public ValueFilter Value { get; }
+        public IValueFilter<TValue> Value { get; }
 
-        protected MultiValueFieldComparison(string field, MultiValueFilter value)
+        protected MultiValueFieldComparison(string field, MultiValueFilter<TValue> value)
         {
             Field = field;
             Value = value;

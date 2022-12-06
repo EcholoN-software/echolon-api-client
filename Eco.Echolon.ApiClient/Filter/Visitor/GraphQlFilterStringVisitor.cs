@@ -10,15 +10,15 @@ namespace Eco.Echolon.ApiClient.Filter.Visitor
     {
         private readonly IDictionary<string, object> _params;
 
-        public GraphQlFilterStringVisitor(IDictionary<string, object> @params)
+        public GraphQlFilterStringVisitor(IDictionary<string, object>? @params = null)
         {
-            _params = @params ?? throw new ArgumentNullException(nameof(@params));
+            _params = @params ?? new Dictionary<string, object>();
         }
 
-        public string Visit(VariableValue filter)
+        public string Visit<TValue>(VariableValue<TValue> filter)
         {
             if (_params.TryGetValue(filter.VariableName, out var value))
-                return new ConstantValue(value).Accept(this);
+                return new ConstantValue<TValue>((TValue)value).Accept(this);
             throw new ParameterNotSuppliedException(filter.VariableName);
         }
 
@@ -32,16 +32,13 @@ namespace Eco.Echolon.ApiClient.Filter.Visitor
             return $"{{or: [{string.Join(", ", filter.Filters.Select(x => x.Accept(this)))}]}}";
         }
 
-        public string Visit(ConstantValue filter)
+        public string Visit<TValue>(ConstantValue<TValue> filter)
         {
             return GraphQLConvert.Serialize(filter.Value);
         }
 
         public string Visit(EqualsFilter filter)
         {
-            //TODO: Workaround GQL-Api Bug
-            return new InFilter(filter.Field, new CollectionValueFilter(new[] {filter.Value}))
-                .Accept(this);
             return $"{{{filter.Field}_eq: {filter.Value.Accept(this)}}}";
         }
 
@@ -85,11 +82,6 @@ namespace Eco.Echolon.ApiClient.Filter.Visitor
             return $"{{{filter.Field}_starts_with: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(IsNullFilter filter)
-        {
-            return new EqualsFilter(filter.Field, new NullValue()).Accept(this);
-        }
-
         public string Visit(EndsWithFilter filter)
         {
             return $"{{{filter.Field}_ends_with: {filter.Value.Accept(this)}}}";
@@ -100,7 +92,7 @@ namespace Eco.Echolon.ApiClient.Filter.Visitor
             return $"{{{filter.Field}_contains: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(CollectionValueFilter filter)
+        public string Visit<TValue>(CollectionValueFilter<TValue> filter)
         {
             return $"[{string.Join(", ", filter.Value.Select(x => x.Accept(this)))}]";
         }

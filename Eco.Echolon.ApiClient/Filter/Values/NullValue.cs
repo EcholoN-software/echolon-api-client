@@ -8,9 +8,5 @@ namespace Eco.Echolon.ApiClient.Filter.Values
         {
             return visitor.Visit(this);
         }
-
-        public NullValue()
-        {
-        }
     }
 }

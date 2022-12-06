@@ -2,9 +2,9 @@
 
 namespace Eco.Echolon.ApiClient.Filter
 {
-    public interface IFieldComparisonFilter<in TU> : IAmEvaluateAble where TU : ValueFilter
+    public interface IFieldComparisonFilter<in TU, in TV> : IAmEvaluateAble where TU : IValueFilter<TV>
     {
         public string Field { get; }
-        public ValueFilter Value { get; }
+        public IValueFilter<TV> Value { get; }
     }
 }

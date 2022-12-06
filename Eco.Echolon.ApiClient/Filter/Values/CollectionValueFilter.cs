@@ -1,13 +1,13 @@
-using System.Collections.Generic;
+ using System.Collections.Generic;
 using Eco.Echolon.ApiClient.Filter.Visitor;
 
 namespace Eco.Echolon.ApiClient.Filter.Values
 {
-    public class CollectionValueFilter : MultiValueFilter
+    public class CollectionValueFilter<TValue> : MultiValueFilter<TValue>
     {
-        public IEnumerable<ValueFilter> Value { get; }
+        public IEnumerable<IValueFilter<TValue>> Value { get; }
 
-        public CollectionValueFilter(IEnumerable<ValueFilter> value)
+        public CollectionValueFilter(IEnumerable<IValueFilter<TValue>> value)
         {
             Value = value;
         }

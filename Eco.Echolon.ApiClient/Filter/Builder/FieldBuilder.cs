@@ -3,9 +3,9 @@ using Eco.Echolon.ApiClient.Filter.Values;
 
 namespace Eco.Echolon.ApiClient.Filter.Builder
 {
-    public class FieldBuilder<TFilter, TValue> : ICreateFilter
-        where TFilter : IFieldComparisonFilter<TValue>
-        where TValue : ValueFilter
+    public class FieldBuilder<TFilter, TValueType, TValue> : ICreateFilter
+        where TFilter : IFieldComparisonFilter<TValueType, TValue>
+        where TValueType : IValueFilter<TValue>
     {
         private readonly string _fieldName;
         private readonly object? _value;
@@ -19,9 +19,9 @@ namespace Eco.Echolon.ApiClient.Filter.Builder
         public IAmEvaluateAble Build()
         {
             return (TFilter)Activator.CreateInstance(typeof(TFilter), _fieldName,
-                typeof(TValue) == typeof(NullValue)
-                    ? Activator.CreateInstance(typeof(TValue))
-                    : Activator.CreateInstance(typeof(TValue), _value));
+                typeof(TValueType) == typeof(NullValue)
+                    ? Activator.CreateInstance(typeof(TValueType))
+                    : Activator.CreateInstance(typeof(TValueType), _value));
         }
     }
 }
