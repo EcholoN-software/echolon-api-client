@@ -1,6 +1,6 @@
 using System;
 
-namespace Eco.Echolon.ApiClient.Filter
+namespace Eco.Echolon.ApiClient.Filter.Visitor
 {
     public class ParameterNotSuppliedException : Exception
     {

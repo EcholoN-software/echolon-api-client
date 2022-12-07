@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eco.Echolon.ApiClient.Filter.Values;
 using Eco.Echolon.ApiClient.Query;
 
 namespace Eco.Echolon.ApiClient.Filter.Visitor
@@ -9,97 +10,89 @@ namespace Eco.Echolon.ApiClient.Filter.Visitor
     {
         private readonly IDictionary<string, object> _params;
 
-        public GraphQlFilterStringVisitor(IDictionary<string, object> @params)
+        public GraphQlFilterStringVisitor(IDictionary<string, object>? @params = null)
         {
-            _params = @params ?? throw new ArgumentNullException(nameof(@params));
+            _params = @params ?? new Dictionary<string, object>();
         }
 
-        public string Visit(VariableValueGraphQlFilter filter)
+        public string Visit<TValue>(VariableValue<TValue> filter)
         {
             if (_params.TryGetValue(filter.VariableName, out var value))
-                return new ConstantValueGraphQlFilter(value).Accept(this);
+                return new ConstantValue<TValue>((TValue)value).Accept(this);
             throw new ParameterNotSuppliedException(filter.VariableName);
         }
 
-        public string Visit(AndGraphQlFilter filter)
+        public string Visit(AndFilter filter)
         {
             return $"{{and: [{string.Join(", ", filter.Filters.Select(x => x.Accept(this)))}]}}";
         }
 
-        public string Visit(OrGraphQlFilter filter)
+        public string Visit(OrFilter filter)
         {
             return $"{{or: [{string.Join(", ", filter.Filters.Select(x => x.Accept(this)))}]}}";
         }
 
-        public string Visit(ConstantValueGraphQlFilter filter)
+        public string Visit<TValue>(ConstantValue<TValue> filter)
         {
             return GraphQLConvert.Serialize(filter.Value);
         }
 
-        public string Visit(EqComparisonGraphQlFilter filter)
+        public string Visit(EqualsFilter filter)
         {
-            //TODO: Workaround GQL-Api Bug
-            return new InComparisonGraphQlFilter(filter.Field, new CollectionValueGraphQlFilter(new[] {filter.Value}))
-                .Accept(this);
             return $"{{{filter.Field}_eq: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(NotComparisonGraphQlFilter filter)
+        public string Visit(NotFilter filter)
         {
             return $"{{{filter.Field}_not: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(GreaterThanComparisonGraphQlFilter filter)
+        public string Visit(GreaterThanFilter filter)
         {
             return $"{{{filter.Field}_gt: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(GreaterOrEqualComparisonGraphQlFilter filter)
+        public string Visit(GreaterOrEqualFilter filter)
         {
             return $"{{{filter.Field}_gte: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(LesserThanComparisonGraphQlFilter filter)
+        public string Visit(LesserThanFilter filter)
         {
             return $"{{{filter.Field}_lt: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(LesserOrEqualComparisonGraphQlFilter filter)
+        public string Visit(LesserOrEqualFilter filter)
         {
             return $"{{{filter.Field}_lte: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(NullValueGraphQlFilter filter)
+        public string Visit(NullValue filter)
         {
             return "null";
         }
 
-        public string Visit(InComparisonGraphQlFilter filter)
+        public string Visit(InFilter filter)
         {
             return $"{{{filter.Field}_in: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(StartsWithComparisonGraphQlFilter filter)
+        public string Visit(StartsWithFilter filter)
         {
             return $"{{{filter.Field}_starts_with: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(NullComparisonGraphQlFilter filter)
-        {
-            return new EqComparisonGraphQlFilter(filter.Field, new NullValueGraphQlFilter()).Accept(this);
-        }
-
-        public string Visit(EndsWithComparisonGraphQlFilter filter)
+        public string Visit(EndsWithFilter filter)
         {
             return $"{{{filter.Field}_ends_with: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(ContainsComparisonGraphQlFilter filter)
+        public string Visit(ContainsFilter filter)
         {
             return $"{{{filter.Field}_contains: {filter.Value.Accept(this)}}}";
         }
 
-        public string Visit(CollectionValueGraphQlFilter filter)
+        public string Visit<TValue>(CollectionValueFilter<TValue> filter)
         {
             return $"[{string.Join(", ", filter.Value.Select(x => x.Accept(this)))}]";
         }

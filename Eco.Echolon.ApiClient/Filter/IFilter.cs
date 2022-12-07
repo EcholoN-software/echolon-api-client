@@ -2,7 +2,7 @@
 
 namespace Eco.Echolon.ApiClient.Filter
 {
-    public interface IGraphQlFilter
+    public interface IFilter
     {
         T Accept<T>(IGraphQlFilterVisitor<T> visitor);
     }

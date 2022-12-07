@@ -11,7 +11,7 @@ namespace Eco.Echolon.ApiClient.Query
     {
         public static string Serialize(object input)
         {
-            if (input is IGraphQlFilter filter)
+            if (input is IFilter filter)
                 return filter.Accept(new GraphQlFilterStringVisitor(new Dictionary<string, object>()));
             
             var jsonSerializer = new JsonSerializer

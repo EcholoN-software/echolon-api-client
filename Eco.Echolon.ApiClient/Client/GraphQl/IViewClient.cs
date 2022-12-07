@@ -9,6 +9,6 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
     {
         Task<GraphQlResponse<T?>> ViewSingle<T>(string viewName, Identity identity) where T : class;
         Task<GraphQlResponse<T[]?>> ViewMultiple<T>(string viewName, int skip = 0, int first = 0,
-            IEnumerable<string>? orderBy = null, IGraphQlFilter? filter = null) where T : class;
+            IEnumerable<string>? orderBy = null, IFilter? filter = null) where T : class;
     }
 }
