@@ -99,7 +99,7 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
 
         public async Task<ApiResult> Dequeue(WorkingQueueId id)
         {
-            var url = _config.ApiUri + "/api/working/dequeue/" + id;
+            var url = _config.ApiUri + "/api/working/queue/" + id;
             var r = await _client.DeleteAsync(url);
             
             if(r.IsSuccessStatusCode)

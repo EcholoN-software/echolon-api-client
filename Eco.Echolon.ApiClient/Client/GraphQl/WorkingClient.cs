@@ -38,6 +38,9 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                     switch (result.StatusCode)
                     {
                         case "Success":
+                            queueId = result?.Id;
+                            done = true;
+                            break;
                         case "Failure":
                             done = true;
                             break;
