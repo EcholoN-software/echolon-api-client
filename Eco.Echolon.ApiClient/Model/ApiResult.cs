@@ -34,11 +34,11 @@ namespace Eco.Echolon.ApiClient.Model
         {
             if (faults == null || faults.Length == 0)
                 throw new InvalidOperationException("Faults have to be non-null and length greater zero");
-            
+
             return new ApiResult(faults);
         }
 
-        public static ApiResult<T> Faulted<T>(Fault[] faults) 
+        public static ApiResult<T> Faulted<T>(Fault[] faults)
         {
             return new ApiResult<T>(faults);
         }
@@ -56,21 +56,19 @@ namespace Eco.Echolon.ApiClient.Model
         }
     }
 
-    #nullable disable
     public class ApiResult<T> : ApiResult
     {
-        private T Data;
+        private readonly T? _data;
 
         public ApiResult(T data)
         {
-            Data = data;
+            _data = data;
         }
 
         public ApiResult(Fault[] faults) : base(faults)
         {
         }
 
-        public T GetData() => Data;
+        public T GetData() => _data ?? throw new FaultException(Faults);
     }
-    #nullable restore
 }
