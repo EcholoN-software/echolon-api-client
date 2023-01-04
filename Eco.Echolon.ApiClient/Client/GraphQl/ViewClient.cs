@@ -14,27 +14,39 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         {
             _baseClient = baseClient;
         }
-        
-        public async Task<GraphQlResponse<T?>> ViewSingle<T>(string viewName, Identity identity) where T : class
-        {
-            return await _baseClient.QueryViewCustom<T>(viewName, new Dictionary<string, object>() { { "id", identity } });
 
+        public async Task<GraphQlResponse<T?>> ViewSingle<T>(string viewName, Identity identity,
+            object? parameter = null) where T : class
+        {
+            var input = new Dictionary<string, object>() { ["id"] = identity };
+
+            if (parameter is not null)
+                input["params"] = parameter;
+
+            return await _baseClient.QueryViewCustom<T>(viewName, input);
         }
 
-        public async Task<GraphQlResponse<T[]?>> ViewMultiple<T>(string viewName, int skip = 0, int first = 0, IEnumerable<string>? orderBy = null,
+        public async Task<GraphQlResponse<T[]?>> ViewMultiple<T>(string viewName,
+            int skip = 0,
+            int first = 0,
+            object? parameter = null,
+            IEnumerable<string>? orderBy = null,
             IFilter? filter = null) where T : class
         {
-            var parameter = new Dictionary<string, object>();
-            parameter["skip"] = skip;
+            var input = new Dictionary<string, object> {  };
 
+            if (skip != 0)
+                input["skip"] = skip;
             if (first != 0)
-                parameter["first"] = first;
+                input["first"] = first;
             if (orderBy != null && orderBy.Any())
-                parameter["orderBy"] = orderBy;
+                input["orderBy"] = orderBy;
             if (filter != null)
-                parameter["where"] = filter;
+                input["where"] = filter;
+            if (parameter is not null)
+                input["params"] = parameter;
 
-            return await _baseClient.QueryViewCustom<T[]>(viewName, parameter);
+            return await _baseClient.QueryViewCustom<T[]>(viewName, input);
         }
     }
 }
