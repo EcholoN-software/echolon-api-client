@@ -16,9 +16,16 @@ namespace Eco.Echolon.ApiClient.Client
         public IViewClient Views { get; }
         public IWorkingQueueClient WorkingQueue { get; }
 
-        public EcoApiClient(IWorkingClient workingClient, IFormattedTextClient formattedText, IFileClient file,
-            IEntitiesClient entities, ITextTemplatesClient textTemplates, IProcessClient process,
-            IConfigClient configuration, ISystemClient client, IViewClient views, IWorkingQueueClient workingQueue)
+        public EcoApiClient(IWorkingClient workingClient,
+            IFormattedTextClient formattedText,
+            IFileClient file,
+            IEntitiesClient entities,
+            ITextTemplatesClient textTemplates,
+            IProcessClient process,
+            IConfigClient configuration,
+            ISystemClient client,
+            IViewClient views,
+            IWorkingQueueClient workingQueue)
         {
             Working = workingClient;
             FormattedText = formattedText;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Filter;
@@ -15,38 +16,56 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             _baseClient = baseClient;
         }
 
-        public async Task<GraphQlResponse<T?>> ViewSingle<T>(string viewName, Identity identity,
+        public Task<GraphQlResponse<T?>> ViewSingle<T>(string viewName, Identity identity,
+            object? parameter = null) where T : class
+        {
+            return ViewSingle<T>(viewName, identity, null, parameter);
+        }
+
+        public async Task<GraphQlResponse<T?>> ViewSingle<T>(string viewName,
+            Identity identity,
+            uint? version = null,
             object? parameter = null) where T : class
         {
             var input = new Dictionary<string, object>() { ["id"] = identity };
 
             if (parameter is not null)
                 input["params"] = parameter;
-
-            return await _baseClient.QueryViewCustom<T>(viewName, input);
+            //TODO: version
+            return await _baseClient.QueryViewSingle<T>(viewName, version, input);
         }
 
-        public async Task<GraphQlResponse<T[]?>> ViewMultiple<T>(string viewName,
+        public Task<GraphQlResponse<T[]?>> ViewMultiple<T>(string viewName,
             int skip = 0,
             int first = 0,
             object? parameter = null,
             IEnumerable<string>? orderBy = null,
             IFilter? filter = null) where T : class
         {
-            var input = new Dictionary<string, object> {  };
+            throw new NotImplementedException();
+            // return ViewMultiple<T>(viewName, null, skip, first, parameter, orderBy, filter);
+        }
 
-            if (skip != 0)
-                input["skip"] = skip;
-            if (first != 0)
-                input["first"] = first;
-            if (orderBy != null && orderBy.Any())
-                input["orderBy"] = orderBy;
-            if (filter != null)
-                input["where"] = filter;
-            if (parameter is not null)
-                input["params"] = parameter;
+        public async Task<GraphQlResponse<T[]?>> ViewMultiple<T>(string viewName, uint? version = null, int skip = 0,
+            int first = 0, object? parameter = null,
+            IEnumerable<(string fieldName, bool ascending)>? orderBy = null, IFilter? filter = null) where T : class
+        {
+            throw new NotImplementedException();
 
-            return await _baseClient.QueryViewCustom<T[]>(viewName, input);
+            // var input = new Dictionary<string, object> { };
+            //
+            // if (skip != 0)
+            //     input["skip"] = skip;
+            // if (first != 0)
+            //     input["first"] = first;
+            // if (orderBy != null && orderBy.Any())
+            //     input["orderBy"] = orderBy;
+            // if (filter != null)
+            //     input["where"] = filter;
+            // if (parameter is not null)
+            //     input["params"] = parameter;
+            //
+            // return await _baseClient.QueryViewCustom<T[]>(viewName, version, input);
         }
     }
 }

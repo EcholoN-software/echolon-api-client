@@ -14,7 +14,7 @@ namespace Eco.Echolon.ApiClient
 {
     public class ApiClientFactory : IDisposable
     {
-        private IServiceProvider Provider { get; }
+        private ServiceProvider Provider { get; }
         private IServiceScope ProviderScope { get; }
         private IServiceCollection ServiceCollection { get; }
 
@@ -51,7 +51,7 @@ namespace Eco.Echolon.ApiClient
             ServiceCollection.AddSingleton<IBaseRestClient, EcoBaseRestClient>();
             ServiceCollection.AddSingleton<IFormattedTextClient, FormattedTextClient>();
             ServiceCollection.AddSingleton<IWorkingQueueClient, WorkingQueueClient>();
-
+            
             if (config.AcceptAnyCertificate)
             {
                 ServiceCollection.ReplaceHttpClient(AccessTokenManagementDefaults.BackChannelHttpClientName,
@@ -95,6 +95,7 @@ namespace Eco.Echolon.ApiClient
         public void Dispose()
         {
             ProviderScope.Dispose();
+            Provider.Dispose();
         }
     }
 }
