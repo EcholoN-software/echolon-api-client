@@ -41,9 +41,7 @@ namespace Eco.Echolon.ApiClient
             ServiceCollection.AddSingleton<IApiClient, EcoApiClient>();
             ServiceCollection.AddSingleton<IBaseClient, EcoBaseClient>();
             ServiceCollection.AddSingleton<IWorkingClient, WorkingClient>();
-            ServiceCollection.AddSingleton<IEntitiesClient, EntitiesClient>();
             ServiceCollection.AddSingleton<ITextTemplatesClient, TextTemplatesClient>();
-            ServiceCollection.AddSingleton<IProcessClient, ProcessClient>();
             ServiceCollection.AddSingleton<IConfigClient, ConfigClient>();
             ServiceCollection.AddSingleton<ISystemClient, SystemClient>();
             ServiceCollection.AddSingleton<IViewClient, ViewClient>();

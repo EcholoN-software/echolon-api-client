@@ -8,9 +8,7 @@ namespace Eco.Echolon.ApiClient.Client
         public IWorkingClient Working { get; }
         public IFormattedTextClient FormattedText { get; }
         public IFileClient File { get; }
-        public IEntitiesClient Entities { get; }
         public ITextTemplatesClient TextTemplates { set; }
-        public IProcessClient Process { get; }
         public IConfigClient Configuration { get; }
         public ISystemClient System { get; }
         public IViewClient Views { get; }
