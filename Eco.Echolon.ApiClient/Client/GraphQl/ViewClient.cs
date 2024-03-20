@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Filter;
 using Eco.Echolon.ApiClient.Model;
+using Eco.Echolon.ApiClient.Query;
 
 namespace Eco.Echolon.ApiClient.Client.GraphQl
 {
@@ -35,37 +36,45 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             return await _baseClient.QueryViewSingle<T>(viewName, version, input);
         }
 
-        public Task<GraphQlResponse<T[]?>> ViewMultiple<T>(string viewName,
+        public Task<GraphQlResponse<CollectionWrapper<T>?>> ViewMultiple<T>(string viewName,
             int skip = 0,
             int first = 0,
             object? parameter = null,
             IEnumerable<string>? orderBy = null,
             IFilter? filter = null) where T : class
         {
-            throw new NotImplementedException();
-            // return ViewMultiple<T>(viewName, null, skip, first, parameter, orderBy, filter);
+            var order = orderBy?.Select(x => (x, false));
+            return ViewMultiple<T>(viewName,
+                null,
+                skip,
+                first,
+                parameter,
+                order,
+                filter);
         }
 
-        public async Task<GraphQlResponse<T[]?>> ViewMultiple<T>(string viewName, uint? version = null, int skip = 0,
-            int first = 0, object? parameter = null,
-            IEnumerable<(string fieldName, bool ascending)>? orderBy = null, IFilter? filter = null) where T : class
+        public async Task<GraphQlResponse<CollectionWrapper<T>?>> ViewMultiple<T>(string viewName,
+            uint? version = null,
+            int skip = 0,
+            int first = 0,
+            object? parameter = null,
+            IEnumerable<(string fieldName, bool ascending)>? orderBy = null,
+            IFilter? filter = null) where T : class
         {
-            throw new NotImplementedException();
+            var input = new Dictionary<string, object> { };
 
-            // var input = new Dictionary<string, object> { };
-            //
-            // if (skip != 0)
-            //     input["skip"] = skip;
-            // if (first != 0)
-            //     input["first"] = first;
-            // if (orderBy != null && orderBy.Any())
-            //     input["orderBy"] = orderBy;
-            // if (filter != null)
-            //     input["where"] = filter;
-            // if (parameter is not null)
-            //     input["params"] = parameter;
-            //
-            // return await _baseClient.QueryViewCustom<T[]>(viewName, version, input);
+            if (skip != 0)
+                input["skip"] = skip;
+            if (first != 0)
+                input["first"] = first;
+            if (orderBy != null && orderBy.Any())
+                input["orderBy"] = orderBy;
+            if (filter != null)
+                input["where"] = filter;
+            if (parameter is not null)
+                input["params"] = parameter;
+
+            return await _baseClient.QueryViewMultiple<T>(viewName, version, input);
         }
     }
 }
