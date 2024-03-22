@@ -7,7 +7,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
 {
     public interface IBaseClient
     {
-        Task<GraphQlResponse<MutationOutput[]?>> EnqueueWorkingMutation<T>(string endpoint,
+        Task<GraphQlResponse<MutationOutput[]?>> EnqueueWorkingMutation<T>(string endpoint, int? version,
             WorkingEnqueueInput<T> payload);
 
         Task<GraphQlResponse<T?>> QueryViewSingle<T>(string viewName,

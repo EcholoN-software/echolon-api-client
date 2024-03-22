@@ -25,14 +25,14 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
 
         public async Task<GraphQlResponse<T?>> ViewSingle<T>(string viewName,
             Identity identity,
-            uint? version = null,
+            uint? version,
             object? parameter = null) where T : class
         {
             var input = new Dictionary<string, object>() { ["id"] = identity };
 
             if (parameter is not null)
                 input["params"] = parameter;
-            //TODO: version
+            
             return await _baseClient.QueryViewSingle<T>(viewName, version, input);
         }
 
@@ -54,7 +54,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         }
 
         public async Task<GraphQlResponse<CollectionWrapper<T>?>> ViewMultiple<T>(string viewName,
-            uint? version = null,
+            uint? version,
             int skip = 0,
             int first = 0,
             object? parameter = null,

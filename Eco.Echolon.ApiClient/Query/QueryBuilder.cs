@@ -27,9 +27,9 @@ namespace Eco.Echolon.ApiClient.Query
             return this;
         }
 
-        public QueryBuilder AddField(string name, Action<QueryBuilder> subQuery)
+        public QueryBuilder AddField(string name, Action<QueryBuilder> subQuery, IDictionary<string, object>? args = null)
         {
-            var field = new QueryBuilder(name, _configurator);
+            var field = new QueryBuilder(name, _configurator, args);
             _subFields.Add(field);
             subQuery(field);
             return this;
@@ -69,21 +69,29 @@ namespace Eco.Echolon.ApiClient.Query
                     //TODO: CustomAttribute erstellen für Custom name
                 }
 
+                var propType = property.PropertyType;
+                if (propType.IsArray)
+                    propType = propType.GetElementType()!;
 
-                if (!property.PropertyType.IsPrimitive &&
-                    property.PropertyType != typeof(string) &&
-                    property.PropertyType != typeof(object) &&
-                    !_configurator.IsSingleValueType(property.PropertyType))
+                if (!propType.IsPrimitive &&
+                    propType != typeof(string) &&
+                    propType != typeof(object) &&
+                    !_configurator.IsSingleValueType(propType))
                 {
-                    if (typeDepth.TryGetValue(property.PropertyType, out var depth) &&
+                    if (propType.GetInterfaces().FirstOrDefault(x => x.Name == "IDictionary") != null)
+                    {
+                        newField.AddField(propName, x => x.AddField("key").AddField("value"));
+                        continue;
+                    }
+                    if (typeDepth.TryGetValue(propType, out var depth) &&
                         _configurator.MaxRecursiveDepth < depth)
                     {
                         continue;
                     }
 
-                    typeDepth[property.PropertyType] = depth + 1;
-                    newField.AddFieldInternal(propName, property.PropertyType, null, typeDepth);
-                    typeDepth[property.PropertyType]--;
+                    typeDepth[propType] = depth + 1;
+                    newField.AddFieldInternal(propName, propType, null, typeDepth);
+                    typeDepth[propType]--;
                 }
                 else newField.AddField(propName);
             }

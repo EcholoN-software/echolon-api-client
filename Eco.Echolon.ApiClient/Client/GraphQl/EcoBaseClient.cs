@@ -8,6 +8,7 @@ using GraphQL;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Eco.Echolon.ApiClient.Client.GraphQl
@@ -19,7 +20,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         private GraphQLHttpClient Client { get; }
 
 
-        public EcoBaseClient(IHttpClientFactory factory, EcholonApiClientConfiguration config,
+        public EcoBaseClient(IHttpClientFactory factory,
+            EcholonApiClientConfiguration config,
             QueryProvider queryProvider)
         {
             _config = config;
@@ -29,15 +31,17 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                 factory.CreateClient(Variables.HttpClientForApi));
         }
 
-        public async Task<GraphQlResponse<MutationOutput[]?>> EnqueueWorkingMutation<T>(string endpoint,
+        public async Task<GraphQlResponse<MutationOutput[]?>> EnqueueWorkingMutation<T>(string endpoint, int? version,
             WorkingEnqueueInput<T> payload)
         {
-            var r = new GraphQLHttpRequest(_queryProvider.GetMutationQuery(new[] { "working", endpoint }, payload));
+            var verStr = version is null ? "latest" : "r" + version.ToString();
+            var query = _queryProvider.GetMutationQuery(new[] { "working", endpoint, verStr }, payload);
+            var r = new GraphQLHttpRequest(query);
 
             var rr = await Client
-                .SendMutationAsync(r, () => new { working = new Dictionary<string, MutationOutput[]>() });
+                .SendMutationAsync(r, () => new { working = new Dictionary<string, Dictionary<string, MutationOutput[]>>() });
 
-            var response = rr.Data.working[endpoint];
+            var response = rr.Data.working[endpoint][verStr];
             var result = new GraphQlResponse<MutationOutput[]?>(response, TranslateError(rr?.Errors));
 
             return result;
@@ -62,7 +66,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             where T : class
         {
             var verStr = version is null ? "latest" : "r" + version;
-            var request = new GraphQLHttpRequest(_queryProvider.GetViewQueryMultiple<T>(viewName, verStr, input));
+            var query = _queryProvider.GetViewQueryMultiple<T>(viewName, verStr, input);
+            var request = new GraphQLHttpRequest(query);
             var result = await Client.SendQueryAsync(request,
                 () => new
                 {
@@ -76,16 +81,20 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         public async Task<GraphQlResponse<T?>> QueryCustom<T>(string[] path, IDictionary<string, object>? input = null)
             where T : class
         {
-            var request = new GraphQLRequest(_queryProvider.GetGraphQlQuery(path, input, typeof(T)));
+            var query = _queryProvider.GetGraphQlQuery(path, input, typeof(T));
+            var request = new GraphQLRequest(query);
             var result = await Client.SendQueryAsync<JObject>(request);
 
+            var serializer = new JsonSerializer();
+            serializer.Converters.Add(new DictionaryJsonConverter());
+            
             var obj = result.Data;
             T? data = null;
 
             for (var i = 0; i < path.Length; i++)
             {
                 if (i == path.Length - 1)
-                    data = obj?[path[i]]?.ToObject<T>();
+                    data = obj?[path[i]]?.ToObject<T>(serializer);
                 else
                     obj = obj?[path[i]] as JObject;
             }

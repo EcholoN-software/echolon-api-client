@@ -21,7 +21,7 @@ namespace Eco.Echolon.ApiClient.Query
             {
                 if (i + 1 == endpoint.Length)
                 {
-                    m.AddField(endpoint[i], typeof(T), new Dictionary<string, object>() { { "input", input } });
+                    m.AddField(endpoint[i], typeof(MutationOutput), new Dictionary<string, object>() { { "input", input } });
                 }
                 else m.AddField(endpoint[i], x => m = x);
             }
@@ -40,8 +40,8 @@ namespace Eco.Echolon.ApiClient.Query
                                 .AddField("skip")
                                 .AddField("first")
                                 .AddField("data", data => data
-                                    .AddField("item", typeof(T), input)
-                                )))));
+                                    .AddField("item", typeof(T))
+                                ), input))));
             return query.ToString();
         }
 

@@ -2,12 +2,12 @@
 {
     public class CollectionWrapper<T>
     {
-        public int Count { get; }
-        public int Skip { get; }
-        public int First { get; }
-        public ItemWrapper<T> Data { get; }
+        public decimal Count { get; }
+        public decimal? Skip { get; }
+        public decimal? First { get; }
+        public ItemWrapper<T>[] Data { get; }
 
-        public CollectionWrapper(int count, int skip, int first, ItemWrapper<T> data)
+        public CollectionWrapper(decimal count, decimal? skip, decimal? first, ItemWrapper<T>[] data)
         {
             Count = count;
             Skip = skip;
