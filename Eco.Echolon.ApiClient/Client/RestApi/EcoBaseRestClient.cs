@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -106,6 +107,17 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
                 return ApiResult.Success();
             
             return ApiResult.Faulted(await ExtractFaults(r));
+        }
+
+        public async Task<ApiResult<Version>> EcholonVersion()
+        {
+            var url = _config.ApiUri + "/api/version/echolon";
+
+            var response = await _client.GetAsync(url);
+            if(response.IsSuccessStatusCode)
+                return ApiResult.Success<Version>(Deserialize<Version>(await response.Content.ReadAsStringAsync()));
+            
+            return ApiResult.Faulted<Version>(await ExtractFaults(response));
         }
 
         public async Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, string fileName)

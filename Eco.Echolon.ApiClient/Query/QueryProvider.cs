@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Eco.Echolon.ApiClient.Model;
 
 namespace Eco.Echolon.ApiClient.Query
@@ -9,8 +7,6 @@ namespace Eco.Echolon.ApiClient.Query
     public class QueryProvider
     {
         private readonly QueryConfigurator _configurator;
-        private Dictionary<Type, int> TypeDepth = new Dictionary<Type, int>();
-        private StringBuilder Builder = new StringBuilder();
 
         public QueryProvider(QueryConfigurator configurator)
         {
@@ -19,102 +15,55 @@ namespace Eco.Echolon.ApiClient.Query
 
         public string GetMutationQuery<T>(string[] endpoint, WorkingEnqueueInput<T> input)
         {
-            return GetGraphQL(RequestType.Mutation, endpoint,
-                new Dictionary<string, object>() { { "input", input } },
-                typeof(MutationOutput));
+            var mutation = QueryBuilder.Mutation(_configurator);
+            var m = mutation;
+            for (int i = 0; i < endpoint.Length; i++)
+            {
+                if (i + 1 == endpoint.Length)
+                {
+                    m.AddField(endpoint[i], typeof(MutationOutput), new Dictionary<string, object>() { { "input", input } });
+                }
+                else m.AddField(endpoint[i], x => m = x);
+            }
+
+            return mutation.ToString();
         }
 
-        public string GetViewQuery<T>(string endpoint, IDictionary<string, object>? input)
+        public string GetViewQueryMultiple<T>(string endpoint, string version, IDictionary<string, object>? input)
         {
-            return GetViewQuery(endpoint, input, typeof(T));
+            var query = QueryBuilder.Query(_configurator)
+                .AddField("views", views => views
+                    .AddField(endpoint, view => view
+                        .AddField(version, ver => ver
+                            .AddField("all", all => all
+                                .AddField("count")
+                                .AddField("skip")
+                                .AddField("first")
+                                .AddField("data", data => data
+                                    .AddField("item", typeof(T))
+                                ), input))));
+            return query.ToString();
         }
 
-        public string GetViewQuery(string endpoint, IDictionary<string, object>? input, Type returnType)
+        public string GetViewQuerySingle<T>(string endpoint, string version, IDictionary<string, object>? input)
         {
-            return GetGraphQlQuery(new[] { "views", endpoint }, input, returnType);
+            return GetGraphQlQuery(new[] { "views", endpoint, version, "one", "item" }, input, typeof(T));
         }
 
         public string GetGraphQlQuery(string[] endpointPath, IDictionary<string, object>? input, Type returnType)
         {
-            return GetGraphQL(RequestType.Query, endpointPath, input, returnType);
-        }
-
-        private string GetGraphQL(RequestType type, string[] endpointPath, IDictionary<string, object>? input,
-            Type returnType)
-        {
-            Builder.AppendLine($"{type.ToQueryKeyWord()} {{");
-
-            for (int i = 0; i < endpointPath.Length - 1; i++)
+            var query = QueryBuilder.Query(_configurator);
+            var q = query;
+            for (int i = 0; i < endpointPath.Length; i++)
             {
-                Builder.AppendLine($"{endpointPath[i]} {{");
-            }
-
-            Builder.AppendLine($"{endpointPath[endpointPath.Length - 1]}");
-            AppendInputString(input);
-            Builder.AppendLine(" {");
-            GetFieldsFromType(returnType);
-
-            foreach (var path in endpointPath)
-            {
-                Builder.AppendLine("}");
-            }
-
-            Builder.AppendLine("}");
-            var r = Builder.ToString();
-            Builder.Clear();
-            return r;
-        }
-
-        private void AppendInputString(IDictionary<string, object>? input)
-        {
-            if (input == null || !input.Any())
-                return;
-            Builder.Append("(");
-
-            foreach (var kv in input)
-                Builder.Append($"{kv.Key}: {GraphQLConvert.Serialize(kv.Value)}, ");
-
-            Builder.Remove(Builder.Length - 2, 2);
-            Builder.Append(")");
-        }
-
-        private void GetFieldsFromType(Type type)
-        {
-            if (type.IsArray)
-                type = type.GetElementType()!;
-
-            foreach (var property in type.GetProperties())
-            {
-                var cAtt = property.CustomAttributes.ToArray();
-                var propName = property.Name;
-
-                if (cAtt.Length > 0)
+                if (i + 1 == endpointPath.Length)
                 {
-                    //TODO: CustomAttribute erstellen für Custom name
+                    q.AddField(endpointPath[i], returnType, input);
                 }
-
-
-                Builder.AppendLine(string.Concat(propName[0].ToString().ToLower(),
-                    propName.Substring(1, propName.Length - 1)));
-
-                if (!property.PropertyType.IsPrimitive &&
-                    property.PropertyType != typeof(string) &&
-                    property.PropertyType != typeof(object) &&
-                    !_configurator.IsSingleValueType(property.PropertyType))
-                {
-                    if (TypeDepth.TryGetValue(property.PropertyType, out var depth) &&
-                        _configurator.MaxRecursiveDepth < depth)
-                    {
-                        continue;
-                    }
-
-                    TypeDepth[property.PropertyType] = depth + 1;
-                    Builder.AppendLine("{");
-                    GetFieldsFromType(property.PropertyType);
-                    Builder.AppendLine("}");
-                    TypeDepth[property.PropertyType]--;
-                }
+                else q.AddField(endpointPath[i], x => q = x);
             }
+
+            return query.ToString();
         }
     }
 }

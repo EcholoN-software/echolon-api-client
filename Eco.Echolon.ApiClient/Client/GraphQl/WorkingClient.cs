@@ -28,7 +28,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
 
             while (!done)
             {
-                var rr = await _baseClient.EnqueueWorkingMutation(endpoint, payload);
+                var rr = await _baseClient.EnqueueWorkingMutation(endpoint, null, payload);
 
                 errors.AddRange(rr.Errors);
                 var response = rr.Data;

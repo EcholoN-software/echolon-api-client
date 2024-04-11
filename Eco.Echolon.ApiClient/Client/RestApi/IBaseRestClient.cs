@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Model;
@@ -17,5 +18,6 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
         Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, MediaTypeHeaderValue contentType);
         Task<ApiResult<WorkQueuePointer[]>> Get();
         Task<ApiResult> Dequeue(WorkingQueueId id);
+        Task<ApiResult<Version>> EcholonVersion();
     }
 }

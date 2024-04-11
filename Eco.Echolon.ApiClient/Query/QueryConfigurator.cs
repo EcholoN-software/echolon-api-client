@@ -43,6 +43,8 @@ namespace Eco.Echolon.ApiClient.Query
         
         public bool IsSingleValueType(Type type)
         {
+            if (type.IsArray)
+                type = type.GetElementType() ?? type;
             return SingleValueTypes.Contains(type) ||
                    Funcs.Any(f => f(type));
         }
