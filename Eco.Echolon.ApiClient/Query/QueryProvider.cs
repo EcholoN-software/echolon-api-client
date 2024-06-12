@@ -47,7 +47,14 @@ namespace Eco.Echolon.ApiClient.Query
 
         public string GetViewQuerySingle<T>(string endpoint, string version, IDictionary<string, object>? input)
         {
-            return GetGraphQlQuery(new[] { "views", endpoint, version, "one", "item" }, input, typeof(T));
+            var query = QueryBuilder.Query(_configurator)
+                .AddField("views", views => views
+                    .AddField(endpoint, view => view
+                        .AddField(version, ver => ver
+                            .AddField("one", one => one
+                                    .AddField("item", typeof(T))
+                                , input))));
+            return query.ToString();
         }
 
         public string GetGraphQlQuery(string[] endpointPath, IDictionary<string, object>? input, Type returnType)
