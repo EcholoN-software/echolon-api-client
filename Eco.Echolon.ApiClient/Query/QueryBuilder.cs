@@ -9,10 +9,10 @@ namespace Eco.Echolon.ApiClient.Query
         public string Name { get; }
         private List<QueryBuilder> _subFields;
         private readonly QueryConfigurator _configurator;
-        private readonly IDictionary<string, object>? _args;
+        private readonly IDictionary<string, object?>? _args;
 
         private QueryBuilder(string name, QueryConfigurator? configurator = null,
-            IDictionary<string, object>? args = null)
+            IDictionary<string, object?>? args = null)
         {
             Name = name;
             _args = args;
@@ -27,7 +27,7 @@ namespace Eco.Echolon.ApiClient.Query
             return this;
         }
 
-        public QueryBuilder AddField(string name, Action<QueryBuilder> subQuery, IDictionary<string, object>? args = null)
+        public QueryBuilder AddField(string name, Action<QueryBuilder> subQuery, IDictionary<string, object?>? args = null)
         {
             var field = new QueryBuilder(name, _configurator, args);
             _subFields.Add(field);
