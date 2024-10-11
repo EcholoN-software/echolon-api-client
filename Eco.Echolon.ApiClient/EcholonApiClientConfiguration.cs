@@ -9,10 +9,12 @@ namespace Eco.Echolon.ApiClient
         public string IdentityHubClientId { get; }
         public string IdentityHubClientSecret { get; }
         public bool AcceptAnyCertificate { get; }
+        public bool UseAccessTokenManagement { get; }
 
         public EcholonApiClientConfiguration(Uri apiUri, Uri identityHubUri, string clientId, string secret,
-            bool acceptAnyCertificate = false)
+            bool acceptAnyCertificate = false, bool useAccessTokenManagement = true)
         {
+            UseAccessTokenManagement = useAccessTokenManagement;
             ApiUri = apiUri;
             IdentityHubUri = identityHubUri;
             IdentityHubClientId = clientId;
