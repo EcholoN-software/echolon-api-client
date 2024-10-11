@@ -28,14 +28,30 @@ namespace Eco.Echolon.ApiClient
             ServiceCollection.AddSingleton<EcholonApiClientConfiguration>(config);
 
             confAction?.Invoke(ServiceCollection, queryConf);
-
-            ServiceCollection.AddAccessTokenManagement()
-                .AddClientCredentials(Variables.HttpClientForApi,
-                    config.IdentityHubUri.ToString(),
-                    config.IdentityHubClientId,
-                    config.IdentityHubClientSecret,
-                    scopes);
-            ServiceCollection.AddSingleton<ClientAccessTokenManagementService>();
+            if (config.UseAccessTokenManagement)
+            {
+                ServiceCollection.AddAccessTokenManagement()
+                    .AddClientCredentials(Variables.HttpClientForApi,
+                        config.IdentityHubUri.ToString(),
+                        config.IdentityHubClientId,
+                        config.IdentityHubClientSecret,
+                        scopes);
+                ServiceCollection.AddSingleton<ClientAccessTokenManagementService>();
+                
+                if (config.AcceptAnyCertificate)
+                {
+                    ServiceCollection.ReplaceHttpClient(AccessTokenManagementDefaults.BackChannelHttpClientName,
+                        _ => new HttpClient(new UnsafeResilientHttpClientHandler()));
+                    ServiceCollection.ReplaceHttpClient(Variables.HttpClientForApi, provider =>
+                    {
+                        var tokenService = provider.GetRequiredService<IClientAccessTokenManagementService>();
+                        return new ClientAccessTokenHandler(tokenService, Variables.HttpClientForApi)
+                        {
+                            InnerHandler = new UnsafeResilientHttpClientHandler(),
+                        };
+                    });
+                }
+            }
             ServiceCollection.AddSingleton<QueryConfigurator>(queryConf);
             ServiceCollection.AddTransient<QueryProvider>();
             ServiceCollection.AddSingleton<IApiClient, EcoApiClient>();
@@ -49,20 +65,6 @@ namespace Eco.Echolon.ApiClient
             ServiceCollection.AddSingleton<IBaseRestClient, EcoBaseRestClient>();
             ServiceCollection.AddSingleton<IFormattedTextClient, FormattedTextClient>();
             ServiceCollection.AddSingleton<IWorkingQueueClient, WorkingQueueClient>();
-            
-            if (config.AcceptAnyCertificate)
-            {
-                ServiceCollection.ReplaceHttpClient(AccessTokenManagementDefaults.BackChannelHttpClientName,
-                    _ => new HttpClient(new UnsafeResilientHttpClientHandler()));
-                ServiceCollection.ReplaceHttpClient(Variables.HttpClientForApi, provider =>
-                {
-                    var tokenService = provider.GetRequiredService<IClientAccessTokenManagementService>();
-                    return new ClientAccessTokenHandler(tokenService, Variables.HttpClientForApi)
-                    {
-                        InnerHandler = new UnsafeResilientHttpClientHandler(),
-                    };
-                });
-            }
 
             Provider = ServiceCollection.BuildServiceProvider();
             ProviderScope = Provider.CreateScope();

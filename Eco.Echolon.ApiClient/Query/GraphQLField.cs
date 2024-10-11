@@ -6,7 +6,7 @@ namespace Eco.Echolon.ApiClient.Query
 {
     public class GraphQLField
     {
-        public GraphQLField(string name, GraphQLField[]? children = null, IDictionary<string, object>? arguments = null)
+        public GraphQLField(string name, GraphQLField[]? children = null, IDictionary<string, object?>? arguments = null)
         {
             Name = name;
             Arguments = arguments;
@@ -14,7 +14,7 @@ namespace Eco.Echolon.ApiClient.Query
         }
 
         public string Name { get; }
-        public IDictionary<string, object>? Arguments { get; }
+        public IDictionary<string, object?>? Arguments { get; }
         public GraphQLField[]? Children { get; }
 
         public override string ToString()

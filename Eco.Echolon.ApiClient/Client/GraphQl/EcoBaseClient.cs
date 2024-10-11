@@ -122,7 +122,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
 
         private GraphQLHttpClientOptions GetOptions()
         {
-            var apiUri = _config.ApiUri + "/graphql";
+            var apiUri = _config.ApiUri.ToString()[_config.ApiUri.ToString().Length -1] == '/' ? _config.ApiUri + "graphql" : _config.ApiUri + "/graphql";
             return new GraphQLHttpClientOptions()
             {
                 EndPoint = new Uri(apiUri),
