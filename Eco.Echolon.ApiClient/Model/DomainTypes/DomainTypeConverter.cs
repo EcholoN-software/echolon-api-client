@@ -14,6 +14,8 @@ namespace Eco.Echolon.ApiClient.Model.DomainTypes
             bool hasExistingValue,
             JsonSerializer serializer)
         {
+            if (reader.TokenType == JsonToken.Null)
+                return null;
             var value = serializer.Deserialize(reader, typeof(T));
             return Activator.CreateInstance(objectType, value == null ? null : (T) value) as DomainType<T>;
         }

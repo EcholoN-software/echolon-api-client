@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Eco.Echolon.ApiClient.Filter;
 using Eco.Echolon.ApiClient.Filter.Visitor;
@@ -18,7 +19,8 @@ namespace Eco.Echolon.ApiClient.Query
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.Indented,
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Converters = { new DictionaryJsonConverter(), new StringEnumNonQuotesConverter() }
             };
             using var stringWriter = new StringWriter();
             using var jsonTextWriter = new JsonTextWriter(stringWriter);
@@ -28,5 +30,25 @@ namespace Eco.Echolon.ApiClient.Query
 
             return stringWriter.ToString();
         }
+    }
+
+    public class StringEnumNonQuotesConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            writer.WriteRawValue(Enum.GetName(value.GetType(), value));
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType.IsEnum;
+        }
+
+        public override bool CanRead => false;
     }
 }

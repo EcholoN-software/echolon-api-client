@@ -2,13 +2,22 @@
 
 namespace Eco.Echolon.ApiClient.Model
 {
-    public class GraphQlResponse<T> 
+    public class GraphQlResponse<T> : GraphQlResponse
     {
-        public T Data { get; }
-        public GraphQlError[] Errors { get; }
-        public GraphQlResponse(T data, GraphQlError[] errors)
+        public GraphQlResponse(T? data, GraphQlError[] errors) : base(errors)
         {
             Data = data;
+        }
+
+        public T? Data { get; }
+    }
+
+    public class GraphQlResponse
+    {
+        public GraphQlError[] Errors { get; }
+
+        public GraphQlResponse(GraphQlError[] errors)
+        {
             Errors = errors;
         }
 

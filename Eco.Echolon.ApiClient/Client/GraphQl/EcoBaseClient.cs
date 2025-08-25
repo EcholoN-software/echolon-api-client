@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Authentication;
 using Eco.Echolon.ApiClient.Model;
 using Eco.Echolon.ApiClient.Query;
-using GraphQL;
-using GraphQL.Client.Abstractions;
-using GraphQL.Client.Http;
-using GraphQL.Client.Serializer.Newtonsoft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -17,7 +15,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
     {
         private readonly EcholonApiClientConfiguration _config;
         private readonly QueryProvider _queryProvider;
-        private GraphQLHttpClient Client { get; }
+        private HttpClient HttpClient { get; }
 
 
         public EcoBaseClient(IHttpClientFactory factory,
@@ -26,23 +24,18 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         {
             _config = config;
             _queryProvider = queryProvider;
-            Client = new GraphQLHttpClient(GetOptions(),
-                new NewtonsoftJsonSerializer(),
-                factory.CreateClient(Variables.HttpClientForApi));
+            HttpClient = factory.CreateClient(Variables.HttpClientForApi);
         }
 
         public async Task<GraphQlResponse<MutationOutput[]?>> EnqueueWorkingMutation<T>(string endpoint, int? version,
             WorkingEnqueueInput<T> payload)
         {
             var verStr = version is null ? "latest" : "r" + version.ToString();
-            var query = _queryProvider.GetMutationQuery(new[] { "working", endpoint, verStr }, payload);
-            var r = new GraphQLHttpRequest(query);
+            var path = new string[] { "working", endpoint, verStr };
+            var query = _queryProvider.GetMutationQuery(path, payload);
+            var r = await SendRequest(query);
 
-            var rr = await Client
-                .SendMutationAsync(r, () => new { working = new Dictionary<string, Dictionary<string, MutationOutput[]>>() });
-
-            var response = rr.Data.working[endpoint][verStr];
-            var result = new GraphQlResponse<MutationOutput[]?>(response, TranslateError(rr?.Errors));
+            var result = new GraphQlResponse<MutationOutput[]?>(Deserialize<MutationOutput[]>(path, r.Data), r.Errors);
 
             return result;
         }
@@ -52,13 +45,11 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             where T : class
         {
             var verStr = version is null ? "latest" : "r" + version.ToString();
-            var request = new GraphQLHttpRequest(_queryProvider.GetViewQuerySingle<T>(viewName, verStr, input));
-            var result = await Client.SendQueryAsync(request, () => new
-            {   // views - view - version - one - item
-                views = new Dictionary<string, Dictionary<string, Dictionary<string, ItemWrapper<T>>>>()
-            });
+            var path = new string[] { "views", viewName, verStr, "one" };
+            var request = _queryProvider.GetViewQuerySingle<T>(viewName, verStr, input);
+            var result = await SendRequest(request);
 
-            return new GraphQlResponse<T?>(result.Data.views[viewName][verStr]["one"].Item, TranslateError(result?.Errors));
+            return new GraphQlResponse<T?>(Deserialize<ItemWrapper<T>>(path, result.Data)?.Item, result.Errors);
         }
 
         public async Task<GraphQlResponse<CollectionWrapper<T>?>> QueryViewMultiple<T>(string viewName,
@@ -67,28 +58,68 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         {
             var verStr = version is null ? "latest" : "r" + version;
             var query = _queryProvider.GetViewQueryMultiple<T>(viewName, verStr, input);
-            var request = new GraphQLHttpRequest(query);
-            var result = await Client.SendQueryAsync(request,
-                () => new
-                {
-                    // views - view - version - all - data item
-                    views = new Dictionary<string, Dictionary<string, Dictionary<string, CollectionWrapper<T>?>>>()
-                });
-            return new GraphQlResponse<CollectionWrapper<T>?>(result.Data.views[viewName][verStr]["all"],
-                TranslateError(result?.Errors));
+            var request = await SendRequest(query);
+
+            var path = new string[] { "views", viewName, verStr, "all" };
+
+            return new GraphQlResponse<CollectionWrapper<T>?>(Deserialize<CollectionWrapper<T>>(path, request.Data),
+                request.Errors);
         }
 
-        public async Task<GraphQlResponse<T?>> QueryCustom<T>(string[] path, IDictionary<string, object>? input = null)
+        public async Task<GraphQlResponse<T>> QueryCustom<T>(string[] path, IDictionary<string, object?>? input = null,
+            bool isMutation = false)
             where T : class
         {
-            var query = _queryProvider.GetGraphQlQuery(path, input, typeof(T));
-            var request = new GraphQLRequest(query);
-            var result = await Client.SendQueryAsync<JObject>(request);
+            var query = _queryProvider.GetGraphQlQuery(path, input, typeof(T), isMutation);
+            var result = await SendRequest(query);
 
+            return new GraphQlResponse<T>(Deserialize<T>(path, result.Data), result.Errors);
+        }
+
+        public async Task<GraphQlResponse<JObject>> SendRequest(string query)
+        {
+            var httpResp = await HttpClient.PostAsync(GetUri(), new GraphQlRequest(query));
+
+            var contentResp = JObject.Parse(await httpResp.Content.ReadAsStringAsync(), new JsonLoadSettings());
+            var errorList = new List<GraphQlError>();
+            JObject? data = null;
+
+            if (contentResp.ContainsKey("errors"))
+            {
+                var errors = contentResp.GetValue("errors") as JArray;
+
+                if (errors is not null)
+                    foreach (var error in errors)
+                    {
+                        if (error is not JObject errorObj)
+                            continue;
+
+                        var message = errorObj["message"]?.ToString();
+                        var location = Deserialize<ErrorLocation[]>(new[] {"locations"}, errorObj);
+
+                        errorList.Add(new GraphQlError(message, location ?? Array.Empty<ErrorLocation>()));
+                    }
+            }
+            else
+            {
+                if (!httpResp.IsSuccessStatusCode)
+                {
+                    throw new GraphQlRequestException(httpResp.StatusCode, query, httpResp);
+                }
+            }
+
+            if (contentResp.ContainsKey("data"))
+            {
+                data = contentResp.GetValue("data") as JObject;
+            }
+
+            return new GraphQlResponse<JObject>(data, errorList.ToArray());
+        }
+
+        private T? Deserialize<T>(string[] path, JObject? obj) where T : class
+        {
             var serializer = new JsonSerializer();
             serializer.Converters.Add(new DictionaryJsonConverter());
-            
-            var obj = result.Data;
             T? data = null;
 
             for (var i = 0; i < path.Length; i++)
@@ -99,34 +130,27 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                     obj = obj?[path[i]] as JObject;
             }
 
-            return new GraphQlResponse<T?>(data, TranslateError(result.Errors));
+            return data;
         }
 
-        private GraphQlError[] TranslateError(GraphQLError[]? errors)
+        private Uri GetUri()
         {
-            if (errors == null)
-                return Array.Empty<GraphQlError>();
-            var list = new List<GraphQlError>();
-
-            foreach (var graphQlError in errors)
+            var apiUri = _config.ApiUri.ToString()[_config.ApiUri.ToString().Length - 1] == '/'
+                ? _config.ApiUri + "graphql"
+                : _config.ApiUri + "/graphql";
+            return new Uri(apiUri, UriKind.Absolute);
+        }
+        
+        private class GraphQlRequest : StringContent
+        {
+            public GraphQlRequest(string query) : base(MakeQuery(query), Encoding.UTF8, "application/json")
             {
-                var locList = new List<ErrorLocation>();
-                if (graphQlError.Locations != null)
-                    foreach (var loc in graphQlError.Locations)
-                        locList.Add(new ErrorLocation(Convert.ToInt32(loc.Line), Convert.ToInt32(loc.Column)));
-                list.Add(new GraphQlError(graphQlError.Message, locList.ToArray()));
             }
 
-            return list.ToArray();
-        }
-
-        private GraphQLHttpClientOptions GetOptions()
-        {
-            var apiUri = _config.ApiUri.ToString()[_config.ApiUri.ToString().Length -1] == '/' ? _config.ApiUri + "graphql" : _config.ApiUri + "/graphql";
-            return new GraphQLHttpClientOptions()
+            private static string MakeQuery(string query)
             {
-                EndPoint = new Uri(apiUri),
-            };
+                return $"{{\"query\": {JsonConvert.ToString(query)}}}";
+            }
         }
     }
 }
