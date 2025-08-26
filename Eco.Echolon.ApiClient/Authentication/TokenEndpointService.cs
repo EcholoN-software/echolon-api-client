@@ -37,7 +37,7 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<TokenResponse> RequestClientAccessToken(string clientName,
-            ClientAccessTokenParameters parameters = default,
+            ClientAccessTokenParameters parameters,
             CancellationToken cancellationToken = default)
         {
             Log.Debug($"Requesting client access token for client: {clientName}");

@@ -10,7 +10,7 @@ namespace Eco.Echolon.ApiClient.Query
         private List<QueryBuilder> _subFields;
         private readonly QueryConfigurator _configurator;
         private readonly IDictionary<string, object?>? _args;
-
+        
         private QueryBuilder(string name, QueryConfigurator? configurator = null,
             IDictionary<string, object?>? args = null)
         {
@@ -35,7 +35,6 @@ namespace Eco.Echolon.ApiClient.Query
             return this;
         }
         
-
         public QueryBuilder AddField<T>(string name)
         {
             return AddField(name, typeof(T));
@@ -43,14 +42,14 @@ namespace Eco.Echolon.ApiClient.Query
 
         public QueryBuilder AddField(string name,
             Type type,
-            IDictionary<string, object>? args = null)
+            IDictionary<string, object?>? args = null)
         {
             return AddFieldInternal(name, type, args, null);
         }
         
         private QueryBuilder AddFieldInternal(string name,
             Type type,
-            IDictionary<string, object>? args,
+            IDictionary<string, object?>? args,
             IDictionary<Type, int>? typeDepth)
         {
             typeDepth ??= new Dictionary<Type, int>();
@@ -62,7 +61,7 @@ namespace Eco.Echolon.ApiClient.Query
             foreach (var property in type.GetProperties())
             {
                 var cAtt = property.CustomAttributes.ToArray();
-                var propName = Uncapitalize(property.Name);
+                var propName = property.Name.Uncapitalize();
 
                 if (cAtt.Length > 0)
                 {
@@ -70,22 +69,32 @@ namespace Eco.Echolon.ApiClient.Query
                 }
 
                 var propType = property.PropertyType;
-                if (propType.IsArray)
-                    propType = propType.GetElementType()!;
-
+                propType = GetUnderlyingType(propType);
+                
                 if (!propType.IsPrimitive &&
                     propType != typeof(string) &&
                     propType != typeof(object) &&
                     !_configurator.IsSingleValueType(propType))
                 {
-                    if (propType.GetInterfaces().FirstOrDefault(x => x.Name == "IDictionary") != null)
-                    {
-                        newField.AddField(propName, x => x.AddField("key").AddField("value"));
-                        continue;
-                    }
                     if (typeDepth.TryGetValue(propType, out var depth) &&
                         _configurator.MaxRecursiveDepth < depth)
                     {
+                        continue;
+                    }
+                    if (propType.GetInterfaces().FirstOrDefault(x => x.Name == "IDictionary") != null)
+                    {
+                        var generics = propType.GetGenericArguments();
+                        if (generics.Length != 2 || generics[1] == typeof(object))
+                        {
+                            newField.AddField(propName, x => x.AddField("key").AddField("value"));
+
+                        }
+                        else
+                        {
+                            typeDepth[propType] = depth + 1;
+                            newField.AddField(propName, x => x.AddField("key").AddFieldInternal("value", generics[1], null, typeDepth));
+                            typeDepth[propType]--;
+                        }
                         continue;
                     }
 
@@ -99,10 +108,14 @@ namespace Eco.Echolon.ApiClient.Query
             return this;
         }
 
-        private string Uncapitalize(string str)
+        private Type GetUnderlyingType(Type type)
         {
-            return string.Concat(str[0].ToString().ToLower(),
-                str.Substring(1, str.Length - 1));
+            if (type.IsArray)
+                return type.GetElementType()!;
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                return type.GenericTypeArguments[0];
+            return type;
         }
 
         public override string ToString()

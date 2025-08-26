@@ -6,23 +6,23 @@ namespace Eco.Echolon.ApiClient.Model.CommonModels.Schema
     {
         public SchemaDefinition(FieldDefinition[] fields,
             AssignmentDefinition[] assignments,
-            IDictionary<string,object?> metadata)
+            IDictionary<string, object?> metadata)
         {
             Fields = fields;
             Assignments = assignments;
             Metadata = metadata;
         }
 
-        public FieldDefinition[] Fields { get; }
-        public AssignmentDefinition[] Assignments { get; }
-        public IDictionary<string,object?> Metadata { get; }
+        public FieldDefinition[] Fields { get; set; }
+        public AssignmentDefinition[] Assignments { get; set; }
+        public IDictionary<string, object?> Metadata { get; set; }
     }
 
     public class FieldDefinition
     {
         public FieldDefinition(string key,
             string type,
-            Dictionary<string,object?> metadata,
+            Dictionary<string, object?> metadata,
             FieldValidatorDefinition[] validators,
             FieldSchemaDefinition[] schemas)
         {
@@ -33,35 +33,37 @@ namespace Eco.Echolon.ApiClient.Model.CommonModels.Schema
             Schemas = schemas;
         }
 
-        public string Key { get; }
-        public string Type { get; }
-        public Dictionary<string,object?> Metadata { get; }
-        public FieldValidatorDefinition[] Validators { get; }
-        public FieldSchemaDefinition[] Schemas { get; }
+        public string Key { get; set; }
+        public string Type { get; set; }
+        public Dictionary<string, object?> Metadata { get; set; }
+        public FieldValidatorDefinition[] Validators { get; set; }
+        public FieldSchemaDefinition[] Schemas { get; set; }
     }
+
     public class FieldValidatorDefinition
     {
-        public FieldValidatorDefinition(string key, Dictionary<string,object?> settings)
+        public FieldValidatorDefinition(string key, Dictionary<string, object?> settings)
         {
             Key = key;
             Settings = settings;
         }
 
-        public string Key { get; }
-        public Dictionary<string,object?> Settings { get; }
+        public string Key { get; set; }
+        public Dictionary<string, object?> Settings { get; set; }
     }
+
     public class FieldSchemaDefinition
     {
-        public FieldSchemaDefinition(FieldDefinition[] fields, Dictionary<string,object?> metadata)
+        public FieldSchemaDefinition(FieldDefinition[] fields, Dictionary<string, object?> metadata)
         {
             Fields = fields;
-            Metadata = metadata ;
+            Metadata = metadata;
         }
 
-        public FieldDefinition[] Fields { get; }
-        public IDictionary<string,object?> Metadata { get; }
+        public FieldDefinition[] Fields { get; set; }
+        public IDictionary<string, object?> Metadata { get; set; }
     }
-    
+
     public sealed class AssignmentDefinition
     {
         public AssignmentDefinition(string target, object? value)
@@ -70,7 +72,7 @@ namespace Eco.Echolon.ApiClient.Model.CommonModels.Schema
             Value = value;
         }
 
-        public string Target { get; }
-        public object? Value { get; }
+        public string Target { get; set; }
+        public object? Value { get; set; }
     }
 }

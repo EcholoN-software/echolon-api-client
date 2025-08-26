@@ -24,7 +24,7 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <value>
         ///     The client identifier.
         /// </value>
-        public string ClientId { get; set; }
+        public string? ClientId { get; set; }
 
         /// <summary>
         ///     Gets or sets the client secret.
@@ -32,7 +32,7 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <value>
         ///     The client secret.
         /// </value>
-        public string ClientSecret { get; set; }
+        public string? ClientSecret { get; set; }
 
         /// <summary>
         ///     List of the requested scopes.

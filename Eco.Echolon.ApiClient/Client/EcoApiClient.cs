@@ -1,10 +1,12 @@
 ﻿using Eco.Echolon.ApiClient.Client.GraphQl;
+using Eco.Echolon.ApiClient.Client.GraphQl.Administration;
 using Eco.Echolon.ApiClient.Client.RestApi;
 
 namespace Eco.Echolon.ApiClient.Client
 {
     public class EcoApiClient : IApiClient
     {
+        public IBaseClient BaseClient { get; }
         public IWorkingClient Working { get; }
         public IFormattedTextClient FormattedText { get; }
         public IFileClient File { get; }
@@ -21,7 +23,8 @@ namespace Eco.Echolon.ApiClient.Client
             IConfigClient configuration,
             ISystemClient client,
             IViewClient views,
-            IWorkingQueueClient workingQueue)
+            IWorkingQueueClient workingQueue,
+            IBaseClient baseClient)
         {
             Working = workingClient;
             FormattedText = formattedText;
@@ -31,6 +34,18 @@ namespace Eco.Echolon.ApiClient.Client
             System = client;
             Views = views;
             WorkingQueue = workingQueue;
+            BaseClient = baseClient;
+        }
+        
+        
+        public IVersionedAdministrationFor<TItem, TItemInput, TListItem> VersionedAdministration<TItem, TItemInput, TListItem>(string module) where TItem : class
+        {
+            return new BaseVersionedAdministration<TItem, TItemInput, TListItem>(module, BaseClient);
+        }
+
+        public IAdministration<TItem, TItemInput> Administration<TItem, TItemInput>(string module) where TItem : class
+        {
+            return new BaseAdministration<TItem, TItemInput>(module, BaseClient);
         }
     }
 }

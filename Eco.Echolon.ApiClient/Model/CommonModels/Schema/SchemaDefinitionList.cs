@@ -5,8 +5,8 @@ namespace Eco.Echolon.ApiClient.Model.CommonModels.Schema
 {
     public class SchemaDefinitionList
     {
-        public TypeDefinition[] Types { get; }
-        public AssignmentDefinition[] Assignments { get; }
+        public TypeDefinition[] Types { get; set;}
+        public AssignmentDefinition[] Assignments { get; set; }
 
         public SchemaDefinitionList(TypeDefinition[] types, AssignmentDefinition[] assignments)
         {
@@ -38,8 +38,8 @@ namespace Eco.Echolon.ApiClient.Model.CommonModels.Schema
 
     public class TypeDefinition
     {
-        public PropertyPair[] PropertyDefinitions { get; }
-        public Dictionary<string, object?> Metadata { get; }
+        public PropertyPair[] PropertyDefinitions { get; set;}
+        public Dictionary<string, object?> Metadata { get; set; }
 
         public TypeDefinition(PropertyPair[] propertyDefinitions, Dictionary<string, object?> metadata)
         {
@@ -50,11 +50,11 @@ namespace Eco.Echolon.ApiClient.Model.CommonModels.Schema
 
     public class PropertyPair
     {
-        public string Name { get; }
-        public string Type { get; }
-        public FieldValidatorDefinition[] Validators { get; }
-        public int[] SchemaIndexes { get; }
-        public Dictionary<string, object?> Metadata { get; }
+        public string Name { get; set; }
+        public string Type { get; set;}
+        public FieldValidatorDefinition[] Validators { get; set; }
+        public int[] SchemaIndexes { get; set; }
+        public Dictionary<string, object?> Metadata { get; set; }
 
         public PropertyPair(string name,
             string type,

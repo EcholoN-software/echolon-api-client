@@ -36,7 +36,7 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <param name="clientName"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public ClientAccessToken GetToken(string clientName, ClientAccessTokenParameters parameters)
+        public ClientAccessToken? GetToken(string clientName, ClientAccessTokenParameters parameters)
         {
             if (clientName is null) throw new ArgumentNullException(nameof(clientName));
 
@@ -97,7 +97,7 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// </summary>
         /// <param name="clientName"></param>
         /// <param name="parameters"></param>
-        public void DeleteToken(string clientName, ClientAccessTokenParameters parameters)
+        public void DeleteToken(string clientName, ClientAccessTokenParameters? parameters)
         {
             if (clientName is null) throw new ArgumentNullException(nameof(clientName));
 

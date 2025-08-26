@@ -4,7 +4,7 @@
     {
     }
 
-    public abstract class DomainType<T> : DomainType
+    public abstract class DomainType<T> : DomainType where T : notnull
     {
         public T Value { get; }
 

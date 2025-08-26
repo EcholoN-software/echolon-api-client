@@ -15,21 +15,10 @@ namespace Eco.Echolon.ApiClient.Query
 
         public string GetMutationQuery<T>(string[] endpoint, WorkingEnqueueInput<T> input)
         {
-            var mutation = QueryBuilder.Mutation(_configurator);
-            var m = mutation;
-            for (int i = 0; i < endpoint.Length; i++)
-            {
-                if (i + 1 == endpoint.Length)
-                {
-                    m.AddField(endpoint[i], typeof(MutationOutput), new Dictionary<string, object>() { { "input", input } });
-                }
-                else m.AddField(endpoint[i], x => m = x);
-            }
-
-            return mutation.ToString();
+            return GetGraphQlQuery(endpoint, new Dictionary<string, object?>() { { "input", input } }, typeof(MutationOutput), true);
         }
 
-        public string GetViewQueryMultiple<T>(string endpoint, string version, IDictionary<string, object>? input)
+        public string GetViewQueryMultiple<T>(string endpoint, string version, IDictionary<string, object?>? input)
         {
             var query = QueryBuilder.Query(_configurator)
                 .AddField("views", views => views
@@ -45,7 +34,7 @@ namespace Eco.Echolon.ApiClient.Query
             return query.ToString();
         }
 
-        public string GetViewQuerySingle<T>(string endpoint, string version, IDictionary<string, object>? input)
+        public string GetViewQuerySingle<T>(string endpoint, string version, IDictionary<string, object?>? input)
         {
             var query = QueryBuilder.Query(_configurator)
                 .AddField("views", views => views
@@ -57,9 +46,9 @@ namespace Eco.Echolon.ApiClient.Query
             return query.ToString();
         }
 
-        public string GetGraphQlQuery(string[] endpointPath, IDictionary<string, object>? input, Type returnType)
+        public string GetGraphQlQuery(string[] endpointPath, IDictionary<string, object?>? input, Type returnType, bool isMutation = false)
         {
-            var query = QueryBuilder.Query(_configurator);
+            var query = isMutation ? QueryBuilder.Mutation(_configurator) : QueryBuilder.Query(_configurator);
             var q = query;
             for (int i = 0; i < endpointPath.Length; i++)
             {

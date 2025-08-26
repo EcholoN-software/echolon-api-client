@@ -14,15 +14,15 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         {
             _baseClient = baseClient;
         }
-        public async Task<GraphQlResponse<SystemDataSources[]?>> SystemDataSources(string[] ids)
+        public async Task<GraphQlResponse<SystemDataSources[]>> SystemDataSources(string[] ids)
         {
             return await _baseClient.QueryCustom<SystemDataSources[]>(new[] { "system", "dataSources" },
-                new Dictionary<string, object>() { { "id", ids } });
+                new Dictionary<string, object?>() { { "id", ids } });
         }
 
-        public async Task<GraphQlResponse<SystemViews[]?>> SystemViews(SystemViewInput? input)
+        public async Task<GraphQlResponse<SystemViews[]>> SystemViews(SystemViewInput? input)
         {
-            var dicInput = new Dictionary<string, object>();
+            var dicInput = new Dictionary<string, object?>();
 
             if (input != null)
             {
@@ -37,17 +37,17 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             return await _baseClient.QueryCustom<SystemViews[]>(new[] { "system", "views" }, dicInput);
         }
 
-        public async Task<GraphQlResponse<SystemPrivileges[]?>> SystemPrivileges()
+        public async Task<GraphQlResponse<SystemPrivileges[]>> SystemPrivileges()
         {
             return await _baseClient.QueryCustom<SystemPrivileges[]>(new[] { "system", "privileges" });
         }
 
-        public async Task<GraphQlResponse<SystemPropertySets[]?>> SystemProperties()
+        public async Task<GraphQlResponse<SystemPropertySets[]>> SystemProperties()
         {
             return await _baseClient.QueryCustom<SystemPropertySets[]>(new[] { "system", "propertySets" });
         }
 
-        public async Task<GraphQlResponse<SystemIndividuals[]?>> SystemIndividuals(string[]? subjects)
+        public async Task<GraphQlResponse<SystemIndividuals[]>> SystemIndividuals(string[]? subjects)
         {
             return await _baseClient.QueryCustom<SystemIndividuals[]>(new[] { "system", "individuals" });
         }

@@ -24,7 +24,7 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <param name="clientName"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        ClientAccessToken GetToken(string clientName, ClientAccessTokenParameters parameters);
+        ClientAccessToken? GetToken(string clientName, ClientAccessTokenParameters parameters);
 
         /// <summary>
         ///     Deletes a client access token from the cache
@@ -32,6 +32,6 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <param name="clientName"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        void DeleteToken(string clientName, ClientAccessTokenParameters parameters);
+        void DeleteToken(string clientName, ClientAccessTokenParameters? parameters);
     }
 }

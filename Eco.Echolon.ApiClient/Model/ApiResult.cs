@@ -54,6 +54,12 @@ namespace Eco.Echolon.ApiClient.Model
             Code = code;
             Message = message;
         }
+
+        public static Fault InvalidResponse()
+        {
+            return new Fault("Invalid_Response",
+                "The WebApi responded with unexpected structure. This might be a version conflict.");
+        }
     }
 
     public class ApiResult<T> : ApiResult

@@ -43,7 +43,7 @@ namespace Eco.Echolon.ApiClient.Query
             return stringBuilder;
         }
 
-        private void AppendInputString(StringBuilder stringBuilder, IDictionary<string, object>? input)
+        private void AppendInputString(StringBuilder stringBuilder, IDictionary<string, object?>? input)
         {
             if (input == null || !input.Any())
                 return;

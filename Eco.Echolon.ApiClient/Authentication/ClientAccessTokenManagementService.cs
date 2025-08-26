@@ -40,8 +40,8 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <param name="parameters"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<string> GetClientAccessTokenAsync(string clientName,
-            ClientAccessTokenParameters parameters = null,
+        public async Task<string?> GetClientAccessTokenAsync(string clientName,
+            ClientAccessTokenParameters? parameters = null,
             CancellationToken cancellationToken = default)
         {
             parameters ??= new ClientAccessTokenParameters();
@@ -59,7 +59,7 @@ namespace Eco.Echolon.ApiClient.Authentication
             {
                 var task = ClientTokenRequestDictionary.GetOrAdd(clientName, _ =>
                 {
-                    return new Lazy<Task<string>>(async () =>
+                    return new Lazy<Task<string?>>(async () =>
                     {
                         var response = await _tokenEndpointService.RequestClientAccessToken(clientName,
                             parameters, cancellationToken);
@@ -75,7 +75,7 @@ namespace Eco.Echolon.ApiClient.Authentication
 
                             Log.Error(message, response.Exception);
 
-                            return null;
+                            return null; 
                         }
 
                         Log.Debug($"Successfully requested access token for client {clientName}");
@@ -86,7 +86,7 @@ namespace Eco.Echolon.ApiClient.Authentication
                             parameters);
 
                         return response.AccessToken;
-                    });
+                    })!;
                 });
 
                 return await task.Value;
@@ -105,7 +105,7 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public Task DeleteClientAccessTokenAsync(string clientName,
-            ClientAccessTokenParameters parameters = null,
+            ClientAccessTokenParameters? parameters = null,
             CancellationToken cancellationToken = default)
         {
             _clientAccessTokenCache.DeleteToken(clientName, parameters);
