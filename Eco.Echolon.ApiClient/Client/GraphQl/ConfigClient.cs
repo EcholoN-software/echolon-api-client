@@ -19,8 +19,10 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             if (section == null || module == null || key == null)
                 throw new ArgumentException();
             var input = new Dictionary<string, object?>()
-                { { "section", section }, { "module", module }, { "key", key } };
-            return await _baseClient.QueryCustom<string>(new[] { "configurations", "get" }, input);
+            {
+                { "section", section }, { "module", module }, { "key", key }
+            };
+            return await _baseClient.Query<string>(new[] { "configurations", "get" }, input);
         }
     }
 }

@@ -20,51 +20,51 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl.Administration
 
         public Task<GraphQlResponse<string[]>> UnsupportedFeatures()
         {
-            return _graphClient.QueryCustom<string[]>(GetPath(nameof(UnsupportedFeatures)));
+            return _graphClient.Query<string[]>(GetPath(nameof(UnsupportedFeatures)));
         }
 
         public Task<GraphQlResponse<TItem[]>> All()
         {
-            return _graphClient.QueryCustom<TItem[]>(GetPath(nameof(All)));
+            return _graphClient.Query<TItem[]>(GetPath(nameof(All)));
         }
 
         public Task<GraphQlResponse<TItem[]>> AllDeployed()
         {
-            return _graphClient.QueryCustom<TItem[]>(GetPath(nameof(AllDeployed)));
+            return _graphClient.Query<TItem[]>(GetPath(nameof(AllDeployed)));
         }
 
         public Task<GraphQlResponse<TListItem[]>> AllList()
         {
-            return _graphClient.QueryCustom<TListItem[]>(GetPath(nameof(AllList)));
+            return _graphClient.Query<TListItem[]>(GetPath(nameof(AllList)));
         }
 
         public Task<GraphQlResponse<TItem[]>> Revisions(CorrelationId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem[]>(GetPath(nameof(Revisions)),
+            return _graphClient.Query<TItem[]>(GetPath(nameof(Revisions)),
                 new Dictionary<string, object?>() { ["id"] = id });
         }
 
         public Task<GraphQlResponse<TItem>> One(ItemId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(One)),
+            return _graphClient.Query<TItem>(GetPath(nameof(One)),
                 new Dictionary<string, object?>() { ["id"] = id });
         }
 
         public Task<GraphQlResponse<TItem>> Latest(CorrelationId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(One)),
+            return _graphClient.Query<TItem>(GetPath(nameof(One)),
                 new Dictionary<string, object?>() { ["id"] = id });
         }
 
         public Task<GraphQlResponse<TItem>> Default()
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(Default)));
+            return _graphClient.Query<TItem>(GetPath(nameof(Default)));
         }
 
         public Task<GraphQlResponse<TItem>> Store(TItemInput item)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(Store)),
-                new Dictionary<string, object?>() { [nameof(item)] = item }, true);
+            return _graphClient.Mutation<TItem>(GetPath(nameof(Store)),
+                new Dictionary<string, object?>() { [nameof(item)] = item });
         }
 
         // public Task<GraphQlResponse> Delete(CorrelationId<TItem> id)
@@ -81,32 +81,32 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl.Administration
 
         public Task<GraphQlResponse<TItem>> Activate(CorrelationId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(Activate)),
-                new Dictionary<string, object?>() { [nameof(id)] = id }, true);
+            return _graphClient.Mutation<TItem>(GetPath(nameof(Activate)),
+                new Dictionary<string, object?>() { [nameof(id)] = id });
         }
 
         public Task<GraphQlResponse<TItem>> Deactivate(CorrelationId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(Deactivate)),
-                new Dictionary<string, object?>() { [nameof(id)] = id }, true);
+            return _graphClient.Mutation<TItem>(GetPath(nameof(Deactivate)),
+                new Dictionary<string, object?>() { [nameof(id)] = id });
         }
 
         public Task<GraphQlResponse<TItem>> Deploy(ItemId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(One)),
-                new Dictionary<string, object?>() { [nameof(id)] = id }, true);
+            return _graphClient.Mutation<TItem>(GetPath(nameof(One)),
+                new Dictionary<string, object?>() { [nameof(id)] = id });
         }
 
         public Task<GraphQlResponse<TItem>> Revoke(ItemId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(One)),
-                new Dictionary<string, object?>() { [nameof(id)] = id }, true);
+            return _graphClient.Mutation<TItem>(GetPath(nameof(One)),
+                new Dictionary<string, object?>() { [nameof(id)] = id });
         }
 
         public Task<GraphQlResponse<TItem>> Revert(ItemId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(One)),
-                new Dictionary<string, object?>() { [nameof(id)] = id }, true);
+            return _graphClient.Mutation<TItem>(GetPath(nameof(One)),
+                new Dictionary<string, object?>() { [nameof(id)] = id });
         }
 
         private string[] GetPath(string endpoint)
