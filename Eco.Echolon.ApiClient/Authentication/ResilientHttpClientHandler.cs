@@ -58,7 +58,7 @@ namespace Eco.Echolon.ApiClient.Authentication
                 var message = $"Connection could not be established with {authority} ...";
 
                 if (!string.IsNullOrWhiteSpace(outcome.Result?.ReasonPhrase))
-                    message += $" {outcome.Result.ReasonPhrase}.";
+                    message += $" {outcome.Result?.ReasonPhrase}.";
 
                 message += $" Retry attempt #{retryAttempt} after {delayTime}.";
 

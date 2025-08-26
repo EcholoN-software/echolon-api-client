@@ -5,8 +5,8 @@ namespace Eco.Echolon.ApiClient.Log
     public class LogService
     {
         private static readonly object SyncRoot = new object();
-        private static LogService _instance;
-        private ILogFactory _factory;
+        private static LogService? _instance;
+        private ILogFactory? _factory;
 
         public static LogService Instance
         {

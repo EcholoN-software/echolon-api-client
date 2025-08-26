@@ -18,8 +18,8 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <param name="parameters">Optional parameters.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation</param>
         /// <returns>The access token or null if the no token can be requested.</returns>
-        Task<string> GetClientAccessTokenAsync(string clientName,
-            ClientAccessTokenParameters parameters = null,
+        Task<string?> GetClientAccessTokenAsync(string clientName,
+            ClientAccessTokenParameters? parameters = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
         /// <returns>The access token or null if the no token can be requested.</returns>
         Task DeleteClientAccessTokenAsync(string clientName,
-            ClientAccessTokenParameters parameters = null,
+            ClientAccessTokenParameters? parameters = null,
             CancellationToken cancellationToken = default);
     }
 }

@@ -15,10 +15,10 @@ namespace Eco.Echolon.ApiClient.Query
 
         public string GetMutationQuery<T>(string[] endpoint, WorkingEnqueueInput<T> input)
         {
-            return GetGraphQlQuery(endpoint, new Dictionary<string, object>() { { "input", input } }, typeof(MutationOutput), true);
+            return GetGraphQlQuery(endpoint, new Dictionary<string, object?>() { { "input", input } }, typeof(MutationOutput), true);
         }
 
-        public string GetViewQueryMultiple<T>(string endpoint, string version, IDictionary<string, object>? input)
+        public string GetViewQueryMultiple<T>(string endpoint, string version, IDictionary<string, object?>? input)
         {
             var query = QueryBuilder.Query(_configurator)
                 .AddField("views", views => views
@@ -34,7 +34,7 @@ namespace Eco.Echolon.ApiClient.Query
             return query.ToString();
         }
 
-        public string GetViewQuerySingle<T>(string endpoint, string version, IDictionary<string, object>? input)
+        public string GetViewQuerySingle<T>(string endpoint, string version, IDictionary<string, object?>? input)
         {
             var query = QueryBuilder.Query(_configurator)
                 .AddField("views", views => views

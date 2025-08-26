@@ -10,8 +10,11 @@ namespace Eco.Echolon.ApiClient.Query
 {
     public static class GraphQLConvert
     {
-        public static string Serialize(object input)
+        public static string Serialize(object? input)
         {
+            if (input is null)
+                return "null";
+            
             if (input is IFilter filter)
                 return filter.Accept(new GraphQlFilterStringVisitor(new Dictionary<string, object>()));
             
@@ -36,6 +39,12 @@ namespace Eco.Echolon.ApiClient.Query
     {
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
+            if (value is null)
+            {
+                writer.WriteNull();
+                return;
+            }
+            
             writer.WriteRawValue(Enum.GetName(value.GetType(), value));
         }
 

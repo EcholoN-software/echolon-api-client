@@ -14,11 +14,11 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             _baseClient = baseClient;
         }
 
-        public async Task<GraphQlResponse<string?>> Get(string section, string module, string key)
+        public async Task<GraphQlResponse<string>> Get(string section, string module, string key)
         {
             if (section == null || module == null || key == null)
                 throw new ArgumentException();
-            var input = new Dictionary<string, object>()
+            var input = new Dictionary<string, object?>()
                 { { "section", section }, { "module", module }, { "key", key } };
             return await _baseClient.QueryCustom<string>(new[] { "configurations", "get" }, input);
         }

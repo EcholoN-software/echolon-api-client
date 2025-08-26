@@ -19,8 +19,8 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <param name="parameters"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<TokenResponse> RequestClientAccessToken(string clientName = default,
-            ClientAccessTokenParameters parameters = default,
+        Task<TokenResponse> RequestClientAccessToken(string clientName,
+            ClientAccessTokenParameters parameters,
             CancellationToken cancellationToken = default);
     }
 }

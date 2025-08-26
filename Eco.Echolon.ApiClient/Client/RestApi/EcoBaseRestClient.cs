@@ -30,9 +30,13 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var response = await _client.PostAsync(url, content);
 
-            if (response.IsSuccessStatusCode)
-                return ApiResult.Success(
-                    Deserialize<Dictionary<string, FileKey>>(await response.Content.ReadAsStringAsync())["filekey"]);
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                var fileKey = Deserialize<Dictionary<string, FileKey>>(await response.Content.ReadAsStringAsync());
+                if (fileKey is not null)
+                    return ApiResult.Success(fileKey["filekey"]);
+                return ApiResult.Faulted<FileKey>(new[] { Fault.InvalidResponse(),  });
+            }
 
             return ApiResult.Faulted<FileKey>(await ExtractFaults(response));
         }
@@ -53,10 +57,13 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             var url = _config.ApiUri + "/api/formattedtexts/";
             var response = await _client.PostAsync(url, new StringContent(formattedText));
 
-            if (response.IsSuccessStatusCode)
-                return ApiResult.Success(
-                    Deserialize<Dictionary<string, FormattedTextId>>(
-                        await response.Content.ReadAsStringAsync())["key"]);
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                var fText = Deserialize<Dictionary<string, FormattedTextId>>(await response.Content.ReadAsStringAsync());
+                if (fText is not null)
+                    return ApiResult.Success(fText["key"]);
+                return ApiResult.Faulted<FormattedTextId>(new[] { Fault.InvalidResponse(),  });
+            }
 
             return ApiResult.Faulted<FormattedTextId>(await ExtractFaults(response));
         }
@@ -79,10 +86,15 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             content.Headers.ContentType = contentType;
 
             var response = await _client.PostAsync(url, content);
-
-            if (response.IsSuccessStatusCode)
-                return ApiResult.Success(Deserialize<EmbeddedResource>(await response.Content.ReadAsStringAsync()));
-
+            
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                var resource = Deserialize<EmbeddedResource>(await response.Content.ReadAsStringAsync());
+                if (resource is not null)
+                    return ApiResult.Success(resource);
+                return ApiResult.Faulted<EmbeddedResource>(new[] { Fault.InvalidResponse(),  });
+            }
+            
             return ApiResult.Faulted<EmbeddedResource>(await ExtractFaults(response));
         }
 
@@ -92,8 +104,13 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
 
             var response = await _client.GetAsync(url);
 
-            if (response.IsSuccessStatusCode)
-                return ApiResult.Success(Deserialize<WorkQueuePointer[]>(await response.Content.ReadAsStringAsync()));
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                var pointer = Deserialize<WorkQueuePointer[]>(await response.Content.ReadAsStringAsync());
+                if (pointer is not null)
+                    return ApiResult.Success(pointer);
+                return ApiResult.Faulted<WorkQueuePointer[]>(new[] { Fault.InvalidResponse(),  });
+            }
             
             return ApiResult.Faulted<WorkQueuePointer[]>(await ExtractFaults(response));
         }
@@ -102,10 +119,10 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
         {
             var url = _config.ApiUri + "/api/working/queue/" + id;
             var r = await _client.DeleteAsync(url);
-            
-            if(r.IsSuccessStatusCode)
+
+            if (r.IsSuccessStatusCode)
                 return ApiResult.Success();
-            
+
             return ApiResult.Faulted(await ExtractFaults(r));
         }
 
@@ -114,8 +131,14 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             var url = _config.ApiUri + "/api/version/echolon";
 
             var response = await _client.GetAsync(url);
-            if(response.IsSuccessStatusCode)
-                return ApiResult.Success<Version>(Deserialize<Version>(await response.Content.ReadAsStringAsync()));
+            
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                var version = Deserialize<Version>(await response.Content.ReadAsStringAsync());
+                if (version is not null)
+                    return ApiResult.Success(version);
+                return ApiResult.Faulted<Version>(new[] { Fault.InvalidResponse(),  });
+            }
             
             return ApiResult.Faulted<Version>(await ExtractFaults(response));
         }
@@ -129,7 +152,7 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
         {
             var helper = new MimeTypeHelper();
             var r = helper.GuessMimeTypeByFileName(fileName);
-            
+
             return new MediaTypeHeaderValue(r);
         }
 
@@ -139,7 +162,12 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             var respAsString = await response.Content.ReadAsStringAsync();
             if (respAsString.Length > 0)
             {
-                faultList.AddRange(Deserialize<Fault[]>(respAsString));
+                var f = Deserialize<Fault[]>(respAsString);
+                if (f is not null)
+                    faultList.AddRange(f);
+                else
+                    faultList.Add(new Fault("Unknown_Fault",
+                        "Could not deserialize Fault. Please search in the Webapi log for further information."));
             }
             else
             {
@@ -150,7 +178,7 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return faultList.ToArray();
         }
 
-        private T Deserialize<T>(string jsonString)
+        private T? Deserialize<T>(string jsonString)
         {
             return JsonConvert.DeserializeObject<T>(jsonString);
         }

@@ -17,18 +17,18 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             _baseClient = baseClient;
         }
 
-        public Task<GraphQlResponse<T?>> ViewSingle<T>(string viewName, Identity identity,
+        public Task<GraphQlResponse<T>> ViewSingle<T>(string viewName, Identity identity,
             object? parameter = null) where T : class
         {
             return ViewSingle<T>(viewName, identity, null, parameter);
         }
 
-        public async Task<GraphQlResponse<T?>> ViewSingle<T>(string viewName,
+        public async Task<GraphQlResponse<T>> ViewSingle<T>(string viewName,
             Identity identity,
             uint? version,
             object? parameter = null) where T : class
         {
-            var input = new Dictionary<string, object>() { ["id"] = identity };
+            var input = new Dictionary<string, object?>() { ["id"] = identity };
 
             if (parameter is not null)
                 input["params"] = parameter;
@@ -36,7 +36,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             return await _baseClient.QueryViewSingle<T>(viewName, version, input);
         }
 
-        public Task<GraphQlResponse<CollectionWrapper<T>?>> ViewMultiple<T>(string viewName,
+        public Task<GraphQlResponse<CollectionWrapper<T>>> ViewMultiple<T>(string viewName,
             int skip = 0,
             int first = 0,
             object? parameter = null,
@@ -53,7 +53,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                 filter);
         }
 
-        public async Task<GraphQlResponse<CollectionWrapper<T>?>> ViewMultiple<T>(string viewName,
+        public async Task<GraphQlResponse<CollectionWrapper<T>>> ViewMultiple<T>(string viewName,
             uint? version,
             int skip = 0,
             int first = 0,
@@ -61,7 +61,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             IEnumerable<(string fieldName, bool ascending)>? orderBy = null,
             IFilter? filter = null) where T : class
         {
-            var input = new Dictionary<string, object> { };
+            var input = new Dictionary<string, object?> { };
 
             if (skip != 0)
                 input["skip"] = skip;

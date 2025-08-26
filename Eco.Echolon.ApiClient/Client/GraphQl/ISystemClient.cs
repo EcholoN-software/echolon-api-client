@@ -6,10 +6,10 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
 {
     public interface ISystemClient
     {
-        Task<GraphQlResponse<SystemDataSources[]?>> SystemDataSources(string[] ids);
-        Task<GraphQlResponse<SystemViews[]?>> SystemViews(SystemViewInput? input);
-        Task<GraphQlResponse<SystemPrivileges[]?>> SystemPrivileges();
-        Task<GraphQlResponse<SystemPropertySets[]?>> SystemProperties();
-        Task<GraphQlResponse<SystemIndividuals[]?>> SystemIndividuals(string[]? subjects);
+        Task<GraphQlResponse<SystemDataSources[]>> SystemDataSources(string[] ids);
+        Task<GraphQlResponse<SystemViews[]>> SystemViews(SystemViewInput? input);
+        Task<GraphQlResponse<SystemPrivileges[]>> SystemPrivileges();
+        Task<GraphQlResponse<SystemPropertySets[]>> SystemProperties();
+        Task<GraphQlResponse<SystemIndividuals[]>> SystemIndividuals(string[]? subjects);
     }
 }

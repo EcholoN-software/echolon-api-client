@@ -69,12 +69,12 @@ public class QueryTests
     [Trait("Category", "fast")]
     public void Deserialize_DictionaryWithTypedValue()
     {
-        var json = @"{""dictionary"":[{""key"": ""pewpew"", ""value"": {""pewpew"": ""Test""}}]}";
+        var json = @"{""dictionary"":[{""key"": ""testKey"", ""value"": {""pewpew"": ""Test""}}]}";
         var serializer = new JsonSerializer();
         serializer.Converters.Add(new DictionaryJsonConverter());
         var reader = new JsonTextReader(new StringReader(json));
         var priv = serializer.Deserialize<TestDictionaryProperty>(reader);
-        priv.Dictionary["pewpew"].ShouldBeOfType<TestClass>();
+        priv.ShouldNotBeNull().Dictionary.ShouldNotBeNull()["testKey"].ShouldBeOfType<TestClass>();
     }
 
     [Fact]
@@ -108,7 +108,7 @@ public class QueryTests
     [Fact]
     public void GraphField_WithArgs()
     {
-        var args = new Dictionary<string, object>() { ["key"] = "pewpew" };
+        var args = new Dictionary<string, object?>() { ["key"] = "pewpew" };
         var provider = new QueryProvider(new QueryConfigurator());
         var query = provider.GetGraphQlQuery(["views", "incidents"], args, typeof(TestClass));
         query.ShouldBe("query{views{incidents(key: \"pewpew\"){pewPew nullableInt }}}");
@@ -117,11 +117,11 @@ public class QueryTests
 
 public class TestClass
 {
-    public string PewPew { get; init; }
+    public string? PewPew { get; init; }
     public int? NullableInt { get; init; }
 }
 
 public class TestDictionaryProperty
 {
-    public Dictionary<string, TestClass> Dictionary { get; init; }
+    public Dictionary<string, TestClass>? Dictionary { get; init; }
 }

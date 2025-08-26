@@ -79,7 +79,7 @@ namespace Eco.Echolon.ApiClient
 
         public IApiClient Create()
         {
-            return ProviderScope.ServiceProvider.GetService<IApiClient>();
+            return ProviderScope.ServiceProvider.GetService<IApiClient>()!;
         }
 
         private class UnsafeResilientHttpClientHandler : ResilientHttpClientHandler

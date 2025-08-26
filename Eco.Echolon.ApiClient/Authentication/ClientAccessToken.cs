@@ -13,7 +13,7 @@ namespace Eco.Echolon.ApiClient.Authentication
         /// <summary>
         ///     The access token
         /// </summary>
-        public string AccessToken { get; set; }
+        public string? AccessToken { get; set; }
 
         /// <summary>
         ///     The access token expiration

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Eco.Echolon.ApiClient.Model.DomainTypes
 {
-    public class DomainTypeConverter<T> : JsonConverter<DomainType<T>>
+    public class DomainTypeConverter<T> : JsonConverter<DomainType<T>> where T : notnull
     {
         public override void WriteJson(JsonWriter writer, DomainType<T>? value, JsonSerializer serializer)
         {

@@ -40,8 +40,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             return result;
         }
 
-        public async Task<GraphQlResponse<T?>> QueryViewSingle<T>(string viewName, uint? version = null,
-            IDictionary<string, object>? input = null)
+        public async Task<GraphQlResponse<T>> QueryViewSingle<T>(string viewName, uint? version = null,
+            IDictionary<string, object?>? input = null)
             where T : class
         {
             var verStr = version is null ? "latest" : "r" + version.ToString();
@@ -49,11 +49,11 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             var request = _queryProvider.GetViewQuerySingle<T>(viewName, verStr, input);
             var result = await SendRequest(request);
 
-            return new GraphQlResponse<T?>(Deserialize<ItemWrapper<T>>(path, result.Data)?.Item, result.Errors);
+            return new GraphQlResponse<T>(Deserialize<ItemWrapper<T>>(path, result.Data)?.Item, result.Errors);
         }
 
-        public async Task<GraphQlResponse<CollectionWrapper<T>?>> QueryViewMultiple<T>(string viewName,
-            uint? version = null, IDictionary<string, object>? input = null)
+        public async Task<GraphQlResponse<CollectionWrapper<T>>> QueryViewMultiple<T>(string viewName,
+            uint? version = null, IDictionary<string, object?>? input = null)
             where T : class
         {
             var verStr = version is null ? "latest" : "r" + version;
@@ -62,7 +62,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
 
             var path = new string[] { "views", viewName, verStr, "all" };
 
-            return new GraphQlResponse<CollectionWrapper<T>?>(Deserialize<CollectionWrapper<T>>(path, request.Data),
+            return new GraphQlResponse<CollectionWrapper<T>>(Deserialize<CollectionWrapper<T>>(path, request.Data),
                 request.Errors);
         }
 
@@ -94,7 +94,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                         if (error is not JObject errorObj)
                             continue;
 
-                        var message = errorObj["message"]?.ToString();
+                        var message = errorObj["message"]?.ToString() 
+                                      ?? "No Message available. Please search in Webapi log for further information.";
                         var location = Deserialize<ErrorLocation[]>(new[] {"locations"}, errorObj);
 
                         errorList.Add(new GraphQlError(message, location ?? Array.Empty<ErrorLocation>()));

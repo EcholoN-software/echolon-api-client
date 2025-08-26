@@ -40,13 +40,16 @@ namespace Eco.Echolon.ApiClient.Query
                 
             if (reader.TokenType == JsonToken.StartArray)
             {
-                result = (IDictionary)typeof(Dictionary<,>).MakeGenericType(genericArgs).GetConstructor(Type.EmptyTypes).Invoke(null);
-                JArray legacyArray = (JArray)JArray.ReadFrom(reader);
+                result = (IDictionary)typeof(Dictionary<,>).MakeGenericType(genericArgs).GetConstructor(Type.EmptyTypes)!.Invoke(null);
+                JArray legacyArray = (JArray)JToken.ReadFrom(reader);
                 for (var i = 0; i < legacyArray.Count; i++)
                 {
-                    var key = legacyArray[i]["key"].ToString();
-                    var val = legacyArray[i]["value"].ToObject(valueType);
-                    result.Add(key, val);
+                    var key = legacyArray[i]["key"]?.ToString();
+                    var val = legacyArray[i]["value"]?.ToObject(valueType);
+                    if (key is not null)
+                    {
+                        result.Add(key, val);
+                    }
                 }
             }
             else 
