@@ -27,7 +27,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             HttpClient = factory.CreateClient(Variables.HttpClientForApi);
         }
 
-        public async Task<GraphQlResponse<MutationOutput[]?>> EnqueueWorkingMutation<T>(string endpoint, int? version,
+        public async Task<GraphQlResponse<MutationOutput[]?>> EnqueueWorkingMutation<T>(string endpoint,
+            int? version,
             WorkingEnqueueInput<T> payload)
         {
             var verStr = version is null ? "latest" : "r" + version.ToString();
@@ -40,7 +41,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             return result;
         }
 
-        public async Task<GraphQlResponse<T>> QueryViewSingle<T>(string viewName, uint? version = null,
+        public async Task<GraphQlResponse<T>> QueryViewSingle<T>(string viewName,
+            uint? version = null,
             IDictionary<string, object?>? input = null)
             where T : class
         {
@@ -53,7 +55,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         }
 
         public async Task<GraphQlResponse<CollectionWrapper<T>>> QueryViewMultiple<T>(string viewName,
-            uint? version = null, IDictionary<string, object?>? input = null)
+            uint? version = null,
+            IDictionary<string, object?>? input = null)
             where T : class
         {
             var verStr = version is null ? "latest" : "r" + version;
@@ -66,14 +69,36 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                 request.Errors);
         }
 
-        public async Task<GraphQlResponse<T>> QueryCustom<T>(string[] path, IDictionary<string, object?>? input = null,
-            bool isMutation = false)
+        public async Task<GraphQlResponse<T>> Query<T>(string[] path, IDictionary<string, object?>? input = null)
             where T : class
         {
-            var query = _queryProvider.GetGraphQlQuery(path, input, typeof(T), isMutation);
+            var query = _queryProvider.GetGraphQlQuery(path, input, typeof(T));
             var result = await SendRequest(query);
 
             return new GraphQlResponse<T>(Deserialize<T>(path, result.Data), result.Errors);
+        }
+
+        public async Task<GraphQlResponse<T>> Mutation<T>(string[] path, IDictionary<string, object?>? input = null)
+            where T : class
+        {
+            var query = _queryProvider.GetMutationQuery(path, input, typeof(T));
+            var result = await SendRequest(query);
+
+            return new GraphQlResponse<T>(Deserialize<T>(path, result.Data), result.Errors);
+        }
+
+        [Obsolete("Please use MutationCustom for Mutation queries. This will be deleted next major version.")]
+        public Task<GraphQlResponse<T>> QueryCustom<T>(string[] path,
+            IDictionary<string, object?>? input = null,
+            bool isMutation = false)
+            where T : class
+        {
+            if (isMutation)
+            {
+                return Mutation<T>(path, input);
+            }
+
+            return QueryCustom<T>(path, input);
         }
 
         public async Task<GraphQlResponse<JObject>> SendRequest(string query)
@@ -94,9 +119,9 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                         if (error is not JObject errorObj)
                             continue;
 
-                        var message = errorObj["message"]?.ToString() 
+                        var message = errorObj["message"]?.ToString()
                                       ?? "No Message available. Please search in Webapi log for further information.";
-                        var location = Deserialize<ErrorLocation[]>(new[] {"locations"}, errorObj);
+                        var location = Deserialize<ErrorLocation[]>(new[] { "locations" }, errorObj);
 
                         errorList.Add(new GraphQlError(message, location ?? Array.Empty<ErrorLocation>()));
                     }
@@ -141,7 +166,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                 : _config.ApiUri + "/graphql";
             return new Uri(apiUri, UriKind.Absolute);
         }
-        
+
         private class GraphQlRequest : StringContent
         {
             public GraphQlRequest(string query) : base(MakeQuery(query), Encoding.UTF8, "application/json")

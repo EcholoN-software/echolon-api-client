@@ -16,27 +16,27 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl.Administration
             _moduleName = moduleName;
             _graphClient = graphClient;
         }
-        
+
         public Task<GraphQlResponse<TItem[]>> All()
         {
-            return _graphClient.QueryCustom<TItem[]>(GetPath(nameof(All)));
+            return _graphClient.Query<TItem[]>(GetPath(nameof(All)));
         }
 
         public Task<GraphQlResponse<TItem>> One(ItemId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(One)),
+            return _graphClient.Query<TItem>(GetPath(nameof(One)),
                 new Dictionary<string, object?>() { ["id"] = id });
         }
 
         public Task<GraphQlResponse<TItem>> Default()
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(Default)));
+            return _graphClient.Query<TItem>(GetPath(nameof(Default)));
         }
 
         public Task<GraphQlResponse<TItem>> Store(TItemInput item)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(Store)),
-                new Dictionary<string, object?>() { [nameof(item)] = item }, true);
+            return _graphClient.Mutation<TItem>(GetPath(nameof(Store)),
+                new Dictionary<string, object?>() { [nameof(item)] = item });
         }
 
         // public Task<GraphQlResponse> Delete(ItemId<TItem> id)
@@ -46,14 +46,16 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl.Administration
         // }
         public Task<GraphQlResponse<TItem>> Activate(ItemId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(Activate)),new Dictionary<string, object?>(){[nameof(id)] = id}, true);
+            return _graphClient.Mutation<TItem>(GetPath(nameof(Activate)),
+                new Dictionary<string, object?>() { [nameof(id)] = id });
         }
 
         public Task<GraphQlResponse<TItem>> Deactivate(ItemId<TItem> id)
         {
-            return _graphClient.QueryCustom<TItem>(GetPath(nameof(Deactivate)),new Dictionary<string, object?>(){[nameof(id)] = id}, true);
+            return _graphClient.Mutation<TItem>(GetPath(nameof(Deactivate)),
+                new Dictionary<string, object?>() { [nameof(id)] = id });
         }
-        
+
         private string[] GetPath(string endpoint)
         {
             return new[] { "admin", _moduleName, endpoint.Uncapitalize() };
