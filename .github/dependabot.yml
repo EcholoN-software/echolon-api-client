@@ -1,0 +1,9 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/Eco.Echolon.ApiClient/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: Microsoft*
+        versions: ["9"]
