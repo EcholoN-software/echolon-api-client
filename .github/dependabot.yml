@@ -5,5 +5,5 @@ updates:
     schedule:
       interval: "weekly"
     ignore:
-      - dependency-name: Microsoft*
+      - dependency-name: "Microsoft*"
         versions: ["9"]
