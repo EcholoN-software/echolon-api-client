@@ -98,7 +98,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                 return Mutation<T>(path, input);
             }
 
-            return QueryCustom<T>(path, input);
+            return Query<T>(path, input);
         }
 
         public async Task<GraphQlResponse<JObject>> SendRequest(string query)
@@ -145,6 +145,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         private T? Deserialize<T>(string[] path, JObject? obj) where T : class
         {
             var serializer = new JsonSerializer();
+            serializer.Converters.Add(new KeyValueDictionaryJsonConverter());
             serializer.Converters.Add(new DictionaryJsonConverter());
             T? data = null;
 

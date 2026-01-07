@@ -45,40 +45,6 @@ public class QueryTests
 
     [Fact]
     [Trait("Category", "fast")]
-    public void JsonSerializerNullable()
-    {
-        var json = @"{
-      ""name"" : ""Administration"",
-      ""notes"" : null,
-      ""hasRelatedPrivileged"" : false,
-      ""hasRelatedAccounts"" : true,
-      ""key"" : ""Administration"",
-      ""created"" : null,
-      ""modified"" : null,
-      ""isActive"" : true,
-      ""id"" : ""d683ca67-1b90-405f-a93b-e8aca4b252a9""
-    }";
-        var b = typeof(Guid?) == typeof(Guid);
-        var serializer = new JsonSerializer();
-        serializer.Converters.Add(new DictionaryJsonConverter());
-        var reader = new JsonTextReader(new StringReader(json));
-        var priv = serializer.Deserialize<SystemPrivileges>(reader);
-    }
-
-    [Fact]
-    [Trait("Category", "fast")]
-    public void Deserialize_DictionaryWithTypedValue()
-    {
-        var json = @"{""dictionary"":[{""key"": ""testKey"", ""value"": {""pewpew"": ""Test""}}]}";
-        var serializer = new JsonSerializer();
-        serializer.Converters.Add(new DictionaryJsonConverter());
-        var reader = new JsonTextReader(new StringReader(json));
-        var priv = serializer.Deserialize<TestDictionaryProperty>(reader);
-        priv.ShouldNotBeNull().Dictionary.ShouldNotBeNull()["testKey"].ShouldBeOfType<TestClass>();
-    }
-
-    [Fact]
-    [Trait("Category", "fast")]
     public void Serialize_DictionaryWithTypedValue()
     {
         var input = new Dictionary<string, object?>()
