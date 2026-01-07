@@ -25,9 +25,7 @@ namespace Eco.Echolon.ApiClient.Query
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 Converters = { 
                     new KeyValueDictionaryJsonConverter(),
-                    new StringEnumNonQuotesConverter(),
-                    // new ReferencePathConverter()
-                    
+                    new StringEnumNonQuotesConverter()
                 }
             };
             using var stringWriter = new StringWriter();

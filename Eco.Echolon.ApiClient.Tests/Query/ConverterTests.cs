@@ -26,7 +26,6 @@ public class ConverterTests
       ""isActive"" : true,
       ""id"" : ""d683ca67-1b90-405f-a93b-e8aca4b252a9""
     }";
-        var b = typeof(Guid?) == typeof(Guid);
         var serializer = new JsonSerializer();
         serializer.Converters.Add(new KeyValueDictionaryJsonConverter());
         var reader = new JsonTextReader(new StringReader(json));
