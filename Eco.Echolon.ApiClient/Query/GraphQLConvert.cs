@@ -23,7 +23,12 @@ namespace Eco.Echolon.ApiClient.Query
                 NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.Indented,
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Converters = { new DictionaryJsonConverter(), new StringEnumNonQuotesConverter() }
+                Converters = { 
+                    new KeyValueDictionaryJsonConverter(),
+                    new StringEnumNonQuotesConverter(),
+                    // new ReferencePathConverter()
+                    
+                }
             };
             using var stringWriter = new StringWriter();
             using var jsonTextWriter = new JsonTextWriter(stringWriter);
