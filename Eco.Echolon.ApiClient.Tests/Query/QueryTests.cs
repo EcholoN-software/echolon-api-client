@@ -41,6 +41,31 @@ public class QueryTests
             ])
         ]);
         var str = q.ToString();
+    }    
+    
+    [Fact]
+    public void GraphField_WithInterfaceGraphField()
+    {
+        var q = new GraphQLField("query", [
+            new GraphQLField("views", [
+                new GraphQLField("incidents", [
+                    new GraphQLField("id", [
+                        new GraphQLField("itemId"),
+                        new GraphQLField("entityId")
+                    ]),
+                    new GraphQLField("name"),
+                    new InterfaceGraphQLField("contactOptions", [ new GraphQLField("isActive")])
+                    {
+                        Variants =
+                        {
+                            ["phone"] = [new GraphQLField("number")],
+                            ["postal"] = [new GraphQLField("zip"), new GraphQLField("address")],
+                        }
+                    }
+                ])
+            ])
+        ]);
+        var str = q.ToString();
     }
 
     [Fact]

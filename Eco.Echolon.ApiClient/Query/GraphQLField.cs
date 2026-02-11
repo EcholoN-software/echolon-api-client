@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -6,36 +7,46 @@ namespace Eco.Echolon.ApiClient.Query
 {
     public class GraphQLField
     {
-        public GraphQLField(string name, GraphQLField[]? children = null, IDictionary<string, object?>? arguments = null)
+        public GraphQLField(string name,
+            GraphQLField[]? baseChildren = null,
+            IDictionary<string, object?>? arguments = null)
         {
             Name = name;
             Arguments = arguments;
-            Children = children;
+            BaseChildren = baseChildren;
         }
 
         public string Name { get; }
         public IDictionary<string, object?>? Arguments { get; }
-        public GraphQLField[]? Children { get; }
+        public GraphQLField[]? BaseChildren { get; }
 
         public override string ToString()
         {
             return ToString(new StringBuilder()).ToString();
         }
 
-        public StringBuilder ToString(StringBuilder stringBuilder)
+        public virtual StringBuilder ToString(StringBuilder stringBuilder)
+        {
+            return ToString(stringBuilder, null);
+        }
+
+        protected StringBuilder ToString(StringBuilder stringBuilder, Action<StringBuilder>? x)
         {
             stringBuilder.Append(Name);
             AppendInputString(stringBuilder, Arguments);
 
-            if (Children is not null)
+            if (BaseChildren is not null)
             {
                 stringBuilder.Append("{");
-                foreach (var child in Children)
+                foreach (var child in BaseChildren)
                 {
                     child.ToString(stringBuilder);
-                    if (child.Children is null)
+                    if (child.BaseChildren is null)
                         stringBuilder.Append(" ");
                 }
+
+                if (x is not null)
+                    x.Invoke(stringBuilder);
 
                 stringBuilder.Append("}");
             }
@@ -59,6 +70,41 @@ namespace Eco.Echolon.ApiClient.Query
         public static implicit operator GraphQLField(string s)
         {
             return new GraphQLField(s, null);
+        }
+    }
+
+    public class InterfaceGraphQLField : GraphQLField
+    {
+        public Dictionary<string, GraphQLField[]> Variants { get; } = new Dictionary<string, GraphQLField[]>();
+
+        public InterfaceGraphQLField(string name,
+            GraphQLField[]? baseChildren = null,
+            IDictionary<string, object?>? arguments = null)
+            : base(name, baseChildren, arguments)
+        {
+        }
+
+        public void AddVariant(string name, GraphQLField[] conditionalChildren)
+        {
+            Variants.Add(name, conditionalChildren);
+        }
+
+        public override StringBuilder ToString(StringBuilder builder)
+        {
+            return ToString(builder,
+                x =>
+                {
+                    foreach (var kv in Variants)
+                    {
+                        x.Append($"... on {kv.Key} {{");
+                        foreach (var graphQLField in kv.Value)
+                        {
+                            graphQLField.ToString(x);
+                        }
+
+                        x.Append("}");
+                    }
+                });
         }
     }
 }
