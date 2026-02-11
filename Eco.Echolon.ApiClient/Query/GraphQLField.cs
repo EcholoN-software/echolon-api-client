@@ -30,7 +30,7 @@ namespace Eco.Echolon.ApiClient.Query
             return ToString(stringBuilder, null);
         }
 
-        protected StringBuilder ToString(StringBuilder stringBuilder, Action<StringBuilder>? x)
+        protected StringBuilder ToString(StringBuilder stringBuilder, Action<StringBuilder>? inScopeAppendAction)
         {
             stringBuilder.Append(Name);
             AppendInputString(stringBuilder, Arguments);
@@ -45,8 +45,8 @@ namespace Eco.Echolon.ApiClient.Query
                         stringBuilder.Append(" ");
                 }
 
-                if (x is not null)
-                    x.Invoke(stringBuilder);
+                if (inScopeAppendAction is not null)
+                    inScopeAppendAction.Invoke(stringBuilder);
 
                 stringBuilder.Append("}");
             }
