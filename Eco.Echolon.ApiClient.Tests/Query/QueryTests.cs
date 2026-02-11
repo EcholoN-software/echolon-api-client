@@ -16,12 +16,15 @@ public class QueryTests
     public void BuildQuery_R26()
     {
         var b = QueryBuilder.Query()
-            .AddField("views", views => views
-                .AddField("incidents", incidents => incidents
-                    .AddField("id", id => id
-                        .AddField("itemId")
-                        .AddField("entityId"))
-                    .AddField("name")))
+            .AddField("views",
+                views => views
+                    .AddField("incidents",
+                        incidents => incidents
+                            .AddField("id",
+                                id => id
+                                    .AddField("itemId")
+                                    .AddField("entityId"))
+                            .AddField("name")))
             .Build();
         var str = b.ToString();
     }
@@ -29,10 +32,14 @@ public class QueryTests
     [Fact]
     public void GraphField_R26()
     {
-        var q = new GraphQLField("query", [
-            new GraphQLField("views", [
-                new GraphQLField("incidents", [
-                    new GraphQLField("id", [
+        var q = new GraphQLField("query",
+        [
+            new GraphQLField("views",
+            [
+                new GraphQLField("incidents",
+                [
+                    new GraphQLField("id",
+                    [
                         new GraphQLField("itemId"),
                         new GraphQLField("entityId")
                     ]),
@@ -41,20 +48,24 @@ public class QueryTests
             ])
         ]);
         var str = q.ToString();
-    }    
-    
+    }
+
     [Fact]
     public void GraphField_WithInterfaceGraphField()
     {
-        var q = new GraphQLField("query", [
-            new GraphQLField("views", [
-                new GraphQLField("incidents", [
-                    new GraphQLField("id", [
+        var q = new GraphQLField("query",
+        [
+            new GraphQLField("views",
+            [
+                new GraphQLField("incidents",
+                [
+                    new GraphQLField("id",
+                    [
                         new GraphQLField("itemId"),
                         new GraphQLField("entityId")
                     ]),
                     new GraphQLField("name"),
-                    new InterfaceGraphQLField("contactOptions", [ new GraphQLField("isActive")])
+                    new InterfaceGraphQLField("contactOptions", [new GraphQLField("isActive")])
                     {
                         Variants =
                         {
@@ -66,6 +77,7 @@ public class QueryTests
             ])
         ]);
         var str = q.ToString();
+        str.Replace(" ", "").ShouldBe(@"query{views{incidents{id{itemId entityId }name contactOptions{isActive ... on phone {number}... on postal {zipaddress}}}}}".Replace(" ", ""));
     }
 
     [Fact]
