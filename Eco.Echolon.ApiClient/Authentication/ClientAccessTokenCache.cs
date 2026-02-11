@@ -47,12 +47,12 @@ namespace Eco.Echolon.ApiClient.Authentication
                 {
                     Log.Debug($"Cache hit for access token for client: {clientName}");
 
-                    var values = entry.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
+                    var values = entry?.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
 
                     return new ClientAccessToken
                     {
-                        AccessToken = values[0],
-                        Expiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse(values[1]))
+                        AccessToken = values?[0],
+                        Expiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse(values?[1]))
                     };
                 }
                 catch (Exception ex)
