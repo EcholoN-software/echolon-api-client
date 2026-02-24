@@ -44,10 +44,6 @@ namespace Eco.Echolon.ApiClient.Query
                 for (int i = 0; i < BaseChildren.Length; i++)
                 {
                     BaseChildren[i].ToString(stringBuilder, depth + 1);
-                    // if (i <= BaseChildren.Length-1)
-                    // {
-                    //     stringBuilder.Append(' ', 2* (depth + 1));
-                    // }
                 }
 
                 if (inScopeAppendAction is not null)
