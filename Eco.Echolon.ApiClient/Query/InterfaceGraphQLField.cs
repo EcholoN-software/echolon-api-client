@@ -19,22 +19,25 @@ namespace Eco.Echolon.ApiClient.Query
             Variants.Add(name, conditionalChildren);
         }
 
-        public override StringBuilder ToString(StringBuilder builder)
+        public override StringBuilder ToString(StringBuilder builder, int depth = 0)
         {
             return ToString(builder,
-                x =>
+                (x, scopeDepth) =>
                 {
                     foreach (var kv in Variants)
                     {
                         x.Append($"... on {kv.Key} {{");
+                        AddNewLineWithSpacing(builder, scopeDepth + 2);
                         foreach (var graphQLField in kv.Value)
                         {
-                            graphQLField.ToString(x);
+                            graphQLField.ToString(x,scopeDepth + 2);
                         }
-
-                        x.Append("}");
+                        
+                        builder.Remove(builder.Length - 2, 2);
+                        x.AppendLine("}");
+                        Spacing(builder, scopeDepth +1);
                     }
-                });
+                }, depth);
         }
     }
 }

@@ -25,33 +25,55 @@ namespace Eco.Echolon.ApiClient.Query
             return ToString(new StringBuilder()).ToString();
         }
 
-        public virtual StringBuilder ToString(StringBuilder stringBuilder)
+        public virtual StringBuilder ToString(StringBuilder stringBuilder, int depth = 0)
         {
-            return ToString(stringBuilder, null);
+            return ToString(stringBuilder, null, depth);
         }
 
-        protected StringBuilder ToString(StringBuilder stringBuilder, Action<StringBuilder>? inScopeAppendAction)
+        protected StringBuilder ToString(StringBuilder stringBuilder,
+            Action<StringBuilder, int>? inScopeAppendAction,
+            int depth)
         {
             stringBuilder.Append(Name);
             AppendInputString(stringBuilder, Arguments);
 
             if (BaseChildren is not null)
             {
-                stringBuilder.Append("{");
-                foreach (var child in BaseChildren)
+                stringBuilder.Append(" {");
+                AddNewLineWithSpacing(stringBuilder, depth + 1);
+                for (int i = 0; i < BaseChildren.Length; i++)
                 {
-                    child.ToString(stringBuilder);
-                    if (child.BaseChildren is null)
-                        stringBuilder.Append(" ");
+                    BaseChildren[i].ToString(stringBuilder, depth + 1);
+                    // if (i <= BaseChildren.Length-1)
+                    // {
+                    //     stringBuilder.Append(' ', 2* (depth + 1));
+                    // }
                 }
 
                 if (inScopeAppendAction is not null)
-                    inScopeAppendAction.Invoke(stringBuilder);
-
-                stringBuilder.Append("}");
+                    inScopeAppendAction.Invoke(stringBuilder, depth);
+                stringBuilder.Remove(stringBuilder.Length - 2, 2);
+                stringBuilder.AppendLine("}");
+            }
+            else
+            {
+              stringBuilder.AppendLine();
             }
 
+            Spacing(stringBuilder, depth);
+
             return stringBuilder;
+        }
+
+        protected void AddNewLineWithSpacing(StringBuilder str, int depth)
+        {
+            str.AppendLine();
+            Spacing(str, depth);
+        }
+
+        protected void Spacing(StringBuilder str, int depth)
+        {
+            str.Append(' ', 2 * (depth));
         }
 
         private void AppendInputString(StringBuilder stringBuilder, IDictionary<string, object?>? input)

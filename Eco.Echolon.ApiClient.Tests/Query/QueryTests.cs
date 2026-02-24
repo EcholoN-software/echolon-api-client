@@ -77,7 +77,28 @@ public class QueryTests
             ])
         ]);
         var str = q.ToString();
-        str.Replace(" ", "").ShouldBe(@"query{views{incidents{id{itemId entityId }name contactOptions{isActive ... on phone {number}... on postal {zipaddress}}}}}".Replace(" ", ""));
+        str.ShouldBe(@"query {
+  views {
+    incidents {
+      id {
+        itemId
+        entityId
+      }
+      name
+      contactOptions {
+        isActive
+        ... on phone {
+          number
+        }
+        ... on postal {
+          zip
+          address
+        }
+      }
+    }
+  }
+}
+");
     }
 
     [Fact]
@@ -103,9 +124,21 @@ public class QueryTests
     [Trait("Category", "fast")]
     public void QueryBuilder_Dictionary_TypedValue()
     {
+        var str = @"query {
+  test {
+    dictionary {
+      key
+      value {
+        pewPew
+        nullableInt
+      }
+    }
+  }
+}
+";
         var qp = new QueryProvider(new QueryConfigurator());
         var req = qp.GetGraphQlQuery(["test"], null, typeof(TestDictionaryProperty));
-        req.ShouldBe("query{test{dictionary{key value{pewPew nullableInt }}}}");
+        req.ShouldBe(str);
     }
 
     [Fact]
@@ -114,7 +147,15 @@ public class QueryTests
         var args = new Dictionary<string, object?>() { ["key"] = "pewpew" };
         var provider = new QueryProvider(new QueryConfigurator());
         var query = provider.GetGraphQlQuery(["views", "incidents"], args, typeof(TestClass));
-        query.ShouldBe("query{views{incidents(key: \"pewpew\"){pewPew nullableInt }}}");
+        query.ShouldBe(@"query {
+  views {
+    incidents(key: ""pewpew"") {
+      pewPew
+      nullableInt
+    }
+  }
+}
+");
     }
 }
 
