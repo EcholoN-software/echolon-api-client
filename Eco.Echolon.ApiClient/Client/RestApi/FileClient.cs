@@ -30,5 +30,17 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
 
             return result;
         }
+
+        public async Task<ApiResult<FileInfoResult>> Info(FileKey fileKey,
+            CancellationToken cancellationToken = default)
+        {
+            return await _restClient.GetFileInfo(fileKey, cancellationToken);
+        }
+
+        public async Task<ApiResult<Stream>> Download(FileKey fileKey,
+            CancellationToken cancellationToken = default)
+        {
+            return await _restClient.DownloadFile(fileKey, cancellationToken);
+        }
     }
 }

@@ -13,6 +13,8 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
     {
         Task<ApiResult<FileKey>> CreateNewFile(FileInput input, CancellationToken cancellationToken = default);
         Task<ApiResult> UploadFileData(FileKey key, Stream stream, CancellationToken cancellationToken = default);
+        Task<ApiResult<FileInfoResult>> GetFileInfo(FileKey key, CancellationToken cancellationToken = default);
+        Task<ApiResult<Stream>> DownloadFile(FileKey key, CancellationToken cancellationToken = default);
         Task<ApiResult<FormattedTextId>> StoreFormattedText(string formattedText, CancellationToken cancellationToken = default);
         Task<ApiResult<string>> GetFormattedText(FormattedTextId id, CancellationToken cancellationToken = default);
         Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, string fileName, CancellationToken cancellationToken = default);

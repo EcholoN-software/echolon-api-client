@@ -55,6 +55,38 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted(await ExtractFaults(response));
         }
 
+        public async Task<ApiResult<FileInfoResult>> GetFileInfo(FileKey key,
+            CancellationToken cancellationToken = default)
+        {
+            var url = _config.ApiUri + $"/api/files/{key}";
+            var response = await _client.GetAsync(url, cancellationToken);
+
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                var info = Deserialize<FileInfoResult>(await response.Content.ReadAsStringAsync());
+                if (info is not null)
+                    return ApiResult.Success(info);
+                return ApiResult.Faulted<FileInfoResult>(new[] { Fault.InvalidResponse() });
+            }
+
+            return ApiResult.Faulted<FileInfoResult>(await ExtractFaults(response));
+        }
+
+        public async Task<ApiResult<Stream>> DownloadFile(FileKey key,
+            CancellationToken cancellationToken = default)
+        {
+            var url = _config.ApiUri + $"/api/files/{key}/download";
+            var response = await _client.GetAsync(url, cancellationToken);
+
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                var stream = await response.Content.ReadAsStreamAsync();
+                return ApiResult.Success(stream);
+            }
+
+            return ApiResult.Faulted<Stream>(await ExtractFaults(response));
+        }
+
         public async Task<ApiResult<FormattedTextId>> StoreFormattedText(string formattedText,
             CancellationToken cancellationToken = default)
         {
