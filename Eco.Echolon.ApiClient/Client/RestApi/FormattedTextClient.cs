@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Model;
 using Eco.Echolon.ApiClient.Model.DomainTypes;
@@ -18,17 +19,20 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             _baseRestClient = baseRestClient;
         }
 
-        public async Task<ApiResult<FormattedTextId>> Store(string formattedText)
+        public async Task<ApiResult<FormattedTextId>> Store(string formattedText,
+            CancellationToken cancellationToken = default)
         {
-            return await _baseRestClient.StoreFormattedText(formattedText);
+            return await _baseRestClient.StoreFormattedText(formattedText, cancellationToken);
         }
 
-        public async Task<ApiResult<FormattedTextId>> Upload(string formattedText)
+        public async Task<ApiResult<FormattedTextId>> Upload(string formattedText,
+            CancellationToken cancellationToken = default)
         {
-            return await Upload(formattedText, null);
+            return await Upload(formattedText, null, cancellationToken);
         }
 
-        public async Task<ApiResult<FormattedTextId>> Upload(string formattedText, string[]? types)
+        public async Task<ApiResult<FormattedTextId>> Upload(string formattedText, string[]? types,
+            CancellationToken cancellationToken = default)
         {
             var regex = new Regex(@"!\[(.*?)]\((.*?)\)", RegexOptions.ECMAScript);
             var fault = new List<Fault>();
@@ -38,6 +42,8 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
 
             foreach (Match match in matches)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var path = match.Groups[2].Value;
                 if (!File.Exists(path))
                     continue;
@@ -48,7 +54,7 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
                 {
                     var li = f.Name.LastIndexOf('\\') + 1;
                     var name = f.Name.Substring(li);
-                    uploadResult = await UploadEmbedded(f, name);
+                    uploadResult = await UploadEmbedded(f, name, cancellationToken);
                 }
                 else
                 {
@@ -58,7 +64,8 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
                             $"Uploading embedding {embedCount} failed due to a missing type"));
                         break;
                     }
-                    uploadResult = await UploadEmbedded(f, new MediaTypeHeaderValue(types![embedCount++]));
+                    uploadResult = await UploadEmbedded(f, new MediaTypeHeaderValue(types![embedCount++]),
+                        cancellationToken);
                 }
 
                 if (uploadResult.IsFaulted)
@@ -72,25 +79,28 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             if (fault.Count != 0)
                 return ApiResult.Faulted<FormattedTextId>(fault.ToArray());
 
-            var upload = await Store(currentText);
+            var upload = await Store(currentText, cancellationToken);
 
             return upload;
         }
 
-        public async Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, MediaTypeHeaderValue contentType)
+        public async Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, MediaTypeHeaderValue contentType,
+            CancellationToken cancellationToken = default)
         {
-            return await _baseRestClient.UploadEmbedded(stream, contentType);
+            return await _baseRestClient.UploadEmbedded(stream, contentType, cancellationToken);
         }
 
-        public async Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, string fileName)
+        public async Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, string fileName,
+            CancellationToken cancellationToken = default)
         {
-            return await _baseRestClient.UploadEmbedded(stream, fileName);
+            return await _baseRestClient.UploadEmbedded(stream, fileName, cancellationToken);
         }
 
 
-        public Task<ApiResult<string>> Get(FormattedTextId formattedTextId)
+        public Task<ApiResult<string>> Get(FormattedTextId formattedTextId,
+            CancellationToken cancellationToken = default)
         {
-            return _baseRestClient.GetFormattedText(formattedTextId);
+            return _baseRestClient.GetFormattedText(formattedTextId, cancellationToken);
         }
     }
 }

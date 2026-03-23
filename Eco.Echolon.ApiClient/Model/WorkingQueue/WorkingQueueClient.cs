@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Client.RestApi;
 using Eco.Echolon.ApiClient.Model.DomainTypes;
 
@@ -13,14 +14,14 @@ namespace Eco.Echolon.ApiClient.Model.WorkingQueue
             _baseClient = baseClient;
         }
         
-        public Task<ApiResult<WorkQueuePointer[]>> Get()
+        public Task<ApiResult<WorkQueuePointer[]>> Get(CancellationToken cancellationToken = default)
         {
-            return _baseClient.Get();
+            return _baseClient.Get(cancellationToken);
         }
 
-        public Task<ApiResult> Dequeue(WorkingQueueId id)
+        public Task<ApiResult> Dequeue(WorkingQueueId id, CancellationToken cancellationToken = default)
         {
-            return _baseClient.Dequeue(id);
+            return _baseClient.Dequeue(id, cancellationToken);
         }
     }
 }

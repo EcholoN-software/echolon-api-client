@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Filter;
 using Eco.Echolon.ApiClient.Model;
@@ -18,22 +19,24 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         }
 
         public Task<GraphQlResponse<T>> ViewSingle<T>(string viewName, Identity identity,
-            object? parameter = null) where T : class
+            object? parameter = null,
+            CancellationToken cancellationToken = default) where T : class
         {
-            return ViewSingle<T>(viewName, identity, null, parameter);
+            return ViewSingle<T>(viewName, identity, null, parameter, cancellationToken);
         }
 
         public async Task<GraphQlResponse<T>> ViewSingle<T>(string viewName,
             Identity identity,
             uint? version,
-            object? parameter = null) where T : class
+            object? parameter = null,
+            CancellationToken cancellationToken = default) where T : class
         {
             var input = new Dictionary<string, object?>() { ["id"] = identity };
 
             if (parameter is not null)
                 input["params"] = parameter;
             
-            return await _baseClient.QueryViewSingle<T>(viewName, version, input);
+            return await _baseClient.QueryViewSingle<T>(viewName, version, input, cancellationToken);
         }
 
         public Task<GraphQlResponse<CollectionWrapper<T>>> ViewMultiple<T>(string viewName,
@@ -41,7 +44,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             int first = 0,
             object? parameter = null,
             IEnumerable<string>? orderBy = null,
-            IFilter? filter = null) where T : class
+            IFilter? filter = null,
+            CancellationToken cancellationToken = default) where T : class
         {
             var order = orderBy?.Select(x => (x, false));
             return ViewMultiple<T>(viewName,
@@ -50,7 +54,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                 first,
                 parameter,
                 order,
-                filter);
+                filter,
+                cancellationToken);
         }
 
         public async Task<GraphQlResponse<CollectionWrapper<T>>> ViewMultiple<T>(string viewName,
@@ -59,7 +64,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             int first = 0,
             object? parameter = null,
             IEnumerable<(string fieldName, bool ascending)>? orderBy = null,
-            IFilter? filter = null) where T : class
+            IFilter? filter = null,
+            CancellationToken cancellationToken = default) where T : class
         {
             var input = new Dictionary<string, object?> { };
 
@@ -74,7 +80,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             if (parameter is not null)
                 input["params"] = parameter;
 
-            return await _baseClient.QueryViewMultiple<T>(viewName, version, input);
+            return await _baseClient.QueryViewMultiple<T>(viewName, version, input, cancellationToken);
         }
     }
 }

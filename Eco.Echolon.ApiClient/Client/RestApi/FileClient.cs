@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Model;
 using Eco.Echolon.ApiClient.Model.DomainTypes;
@@ -14,14 +15,15 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             _restClient = restClient;
         }
 
-        public async Task<ApiResult<FileKey>> Upload(FileInput fileName, Stream stream)
+        public async Task<ApiResult<FileKey>> Upload(FileInput fileName, Stream stream,
+            CancellationToken cancellationToken = default)
         {
-            var result = await _restClient.CreateNewFile(fileName);
+            var result = await _restClient.CreateNewFile(fileName, cancellationToken);
 
             if (result.IsFaulted)
                 return result;
 
-            var uploadResult = await _restClient.UploadFileData(result.GetData(), stream);
+            var uploadResult = await _restClient.UploadFileData(result.GetData(), stream, cancellationToken);
 
             if (uploadResult.IsFaulted)
                 return ApiResult.Faulted<FileKey>(uploadResult.Faults);
