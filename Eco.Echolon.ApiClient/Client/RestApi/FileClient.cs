@@ -23,12 +23,25 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             if (result.IsFaulted)
                 return result;
 
-            var uploadResult = await _restClient.UploadFileData(result.GetData(), stream, cancellationToken);
+            var contentType = new MimeTypeHelper().GuessMimeTypeByFileName(fileName.FileName);
+            var uploadResult = await _restClient.UploadFileData(result.GetData(), stream, contentType, cancellationToken);
 
             if (uploadResult.IsFaulted)
                 return ApiResult.Faulted<FileKey>(uploadResult.Faults);
 
             return result;
+        }
+
+        public async Task<ApiResult<FileInfoResult>> Info(FileKey fileKey,
+            CancellationToken cancellationToken = default)
+        {
+            return await _restClient.GetFileInfo(fileKey, cancellationToken);
+        }
+
+        public async Task<ApiResult<Stream>> Download(FileKey fileKey,
+            CancellationToken cancellationToken = default)
+        {
+            return await _restClient.DownloadFile(fileKey, cancellationToken);
         }
     }
 }

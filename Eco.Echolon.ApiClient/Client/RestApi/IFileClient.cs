@@ -10,5 +10,9 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
     {
         Task<ApiResult<FileKey>> Upload(FileInput fileName, Stream stream,
             CancellationToken cancellationToken = default);
+        Task<ApiResult<FileInfoResult>> Info(FileKey fileKey,
+            CancellationToken cancellationToken = default);
+        Task<ApiResult<Stream>> Download(FileKey fileKey,
+            CancellationToken cancellationToken = default);
     }
 }
