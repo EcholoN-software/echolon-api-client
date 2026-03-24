@@ -3,3 +3,4 @@
 **/packages/*
 **/.idea/*
 **/Eco.Echolon.ApiClientDemo/*
+.env

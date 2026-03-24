@@ -43,11 +43,14 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted<FileKey>(await ExtractFaults(response));
         }
 
-        public async Task<ApiResult> UploadFileData(FileKey key, Stream stream,
+        public async Task<ApiResult> UploadFileData(FileKey key, Stream stream, string? contentType = null,
             CancellationToken cancellationToken = default)
         {
             var url = _config.ApiUri + $"/api/files/upload/{key}";
-            var response = await _client.PostAsync(url, new StreamContent(stream), cancellationToken);
+            var content = new StreamContent(stream);
+            if (!string.IsNullOrEmpty(contentType))
+                content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+            var response = await _client.PostAsync(url, content, cancellationToken);
 
             if (response.IsSuccessStatusCode)
                 return ApiResult.Success();

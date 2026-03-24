@@ -12,7 +12,7 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
     public interface IBaseRestClient
     {
         Task<ApiResult<FileKey>> CreateNewFile(FileInput input, CancellationToken cancellationToken = default);
-        Task<ApiResult> UploadFileData(FileKey key, Stream stream, CancellationToken cancellationToken = default);
+        Task<ApiResult> UploadFileData(FileKey key, Stream stream, string? contentType = null, CancellationToken cancellationToken = default);
         Task<ApiResult<FileInfoResult>> GetFileInfo(FileKey key, CancellationToken cancellationToken = default);
         Task<ApiResult<Stream>> DownloadFile(FileKey key, CancellationToken cancellationToken = default);
         Task<ApiResult<FormattedTextId>> StoreFormattedText(string formattedText, CancellationToken cancellationToken = default);

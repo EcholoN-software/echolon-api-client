@@ -23,6 +23,72 @@ public class FileClientTests
 
     [Fact]
     [Trait("Category", "fast")]
+    public async Task Upload_PassesResolvedMimeType_ToUploadFileData()
+    {
+        var fileKey = new FileKey(Guid.NewGuid());
+        var fileInput = new FileInput("report.pdf", TimeSpan.FromHours(1));
+        var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+
+        _restClient.CreateNewFile(fileInput).Returns(ApiResult.Success(fileKey));
+        _restClient.UploadFileData(fileKey, stream, Arg.Any<string>()).Returns(ApiResult.Success());
+
+        await _sut.Upload(fileInput, stream);
+
+        await _restClient.Received(1).UploadFileData(fileKey, stream, "application/pdf");
+    }
+
+    [Fact]
+    [Trait("Category", "fast")]
+    public async Task Upload_PassesTextPlain_ForTxtFile()
+    {
+        var fileKey = new FileKey(Guid.NewGuid());
+        var fileInput = new FileInput("notes.txt", TimeSpan.FromHours(1));
+        var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+
+        _restClient.CreateNewFile(fileInput).Returns(ApiResult.Success(fileKey));
+        _restClient.UploadFileData(fileKey, stream, Arg.Any<string>()).Returns(ApiResult.Success());
+
+        await _sut.Upload(fileInput, stream);
+
+        await _restClient.Received(1).UploadFileData(fileKey, stream, "text/plain");
+    }
+
+    [Fact]
+    [Trait("Category", "fast")]
+    public async Task Upload_PassesOctetStream_ForUnknownExtension()
+    {
+        var fileKey = new FileKey(Guid.NewGuid());
+        var fileInput = new FileInput("data.xyz123", TimeSpan.FromHours(1));
+        var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+
+        _restClient.CreateNewFile(fileInput).Returns(ApiResult.Success(fileKey));
+        _restClient.UploadFileData(fileKey, stream, Arg.Any<string>()).Returns(ApiResult.Success());
+
+        await _sut.Upload(fileInput, stream);
+
+        await _restClient.Received(1).UploadFileData(fileKey, stream, "application/octet-stream");
+    }
+
+    [Fact]
+    [Trait("Category", "fast")]
+    public async Task Upload_DoesNotCallUploadFileData_WhenCreateNewFileFails()
+    {
+        var fileInput = new FileInput("report.pdf", TimeSpan.FromHours(1));
+        var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+        var faults = new[] { new Fault("CREATE_FAILED", "Could not create file") };
+
+        _restClient.CreateNewFile(fileInput).Returns(ApiResult.Faulted<FileKey>(faults));
+
+        var result = await _sut.Upload(fileInput, stream);
+
+        result.IsFaulted.ShouldBeTrue();
+        result.Faults[0].Code.ShouldBe("CREATE_FAILED");
+        await _restClient.DidNotReceive().UploadFileData(
+            Arg.Any<FileKey>(), Arg.Any<Stream>(), Arg.Any<string>());
+    }
+
+    [Fact]
+    [Trait("Category", "fast")]
     public async Task Info_ReturnsFileInfo_WhenSuccessful()
     {
         var fileKey = new FileKey(Guid.NewGuid());
