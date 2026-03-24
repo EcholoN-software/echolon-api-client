@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Client.RestApi;
 using Eco.Echolon.ApiClient.Model;
@@ -19,7 +20,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         }
 
         public async Task<GraphQlResponse<MutationOutput?>> WorkingWaitForResult<T>(string endpoint,
-            WorkingEnqueueInput<T> payload)
+            WorkingEnqueueInput<T> payload,
+            CancellationToken cancellationToken = default)
         {
             var done = false;
             MutationOutput? result = null;
@@ -28,7 +30,9 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
 
             while (!done)
             {
-                var rr = await _baseClient.EnqueueWorkingMutation(endpoint, null, payload);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var rr = await _baseClient.EnqueueWorkingMutation(endpoint, null, payload, cancellationToken);
 
                 errors.AddRange(rr.Errors);
                 var response = rr.Data;
@@ -45,14 +49,14 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                             done = true;
                             break;
                         case "Pending":
-                            await Task.Delay(1000);
+                            await Task.Delay(1000, cancellationToken);
                             break;
                     }
                 else done = true;
             }
 
             if (queueId != null)
-                await _restClient.Dequeue(queueId);
+                await _restClient.Dequeue(queueId, cancellationToken);
 
             return new GraphQlResponse<MutationOutput?>(result, errors.ToArray());
         }

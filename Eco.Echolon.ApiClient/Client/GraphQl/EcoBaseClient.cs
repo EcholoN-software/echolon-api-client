@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Authentication;
 using Eco.Echolon.ApiClient.Model;
@@ -29,12 +30,13 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
 
         public async Task<GraphQlResponse<MutationOutput[]?>> EnqueueWorkingMutation<T>(string endpoint,
             int? version,
-            WorkingEnqueueInput<T> payload)
+            WorkingEnqueueInput<T> payload,
+            CancellationToken cancellationToken = default)
         {
             var verStr = version is null ? "latest" : "r" + version.ToString();
             var path = new string[] { "working", endpoint, verStr };
             var query = _queryProvider.GetMutationQuery(path, payload);
-            var r = await SendRequest(query);
+            var r = await SendRequest(query, cancellationToken);
 
             var result = new GraphQlResponse<MutationOutput[]?>(Deserialize<MutationOutput[]>(path, r.Data), r.Errors);
 
@@ -43,25 +45,27 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
 
         public async Task<GraphQlResponse<T>> QueryViewSingle<T>(string viewName,
             uint? version = null,
-            IDictionary<string, object?>? input = null)
+            IDictionary<string, object?>? input = null,
+            CancellationToken cancellationToken = default)
             where T : class
         {
             var verStr = version is null ? "latest" : "r" + version.ToString();
             var path = new string[] { "views", viewName, verStr, "one" };
             var request = _queryProvider.GetViewQuerySingle<T>(viewName, verStr, input);
-            var result = await SendRequest(request);
+            var result = await SendRequest(request, cancellationToken);
 
             return new GraphQlResponse<T>(Deserialize<ItemWrapper<T>>(path, result.Data)?.Item, result.Errors);
         }
 
         public async Task<GraphQlResponse<CollectionWrapper<T>>> QueryViewMultiple<T>(string viewName,
             uint? version = null,
-            IDictionary<string, object?>? input = null)
+            IDictionary<string, object?>? input = null,
+            CancellationToken cancellationToken = default)
             where T : class
         {
             var verStr = version is null ? "latest" : "r" + version;
             var query = _queryProvider.GetViewQueryMultiple<T>(viewName, verStr, input);
-            var request = await SendRequest(query);
+            var request = await SendRequest(query, cancellationToken);
 
             var path = new string[] { "views", viewName, verStr, "all" };
 
@@ -69,20 +73,22 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
                 request.Errors);
         }
 
-        public async Task<GraphQlResponse<T>> Query<T>(string[] path, IDictionary<string, object?>? input = null)
+        public async Task<GraphQlResponse<T>> Query<T>(string[] path, IDictionary<string, object?>? input = null,
+            CancellationToken cancellationToken = default)
             where T : class
         {
             var query = _queryProvider.GetGraphQlQuery(path, input, typeof(T));
-            var result = await SendRequest(query);
+            var result = await SendRequest(query, cancellationToken);
 
             return new GraphQlResponse<T>(Deserialize<T>(path, result.Data), result.Errors);
         }
 
-        public async Task<GraphQlResponse<T>> Mutation<T>(string[] path, IDictionary<string, object?>? input = null)
+        public async Task<GraphQlResponse<T>> Mutation<T>(string[] path, IDictionary<string, object?>? input = null,
+            CancellationToken cancellationToken = default)
             where T : class
         {
             var query = _queryProvider.GetMutationQuery(path, input, typeof(T));
-            var result = await SendRequest(query);
+            var result = await SendRequest(query, cancellationToken);
 
             return new GraphQlResponse<T>(Deserialize<T>(path, result.Data), result.Errors);
         }
@@ -90,20 +96,22 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
         [Obsolete("Please use MutationCustom for Mutation queries. This will be deleted next major version.")]
         public Task<GraphQlResponse<T>> QueryCustom<T>(string[] path,
             IDictionary<string, object?>? input = null,
-            bool isMutation = false)
+            bool isMutation = false,
+            CancellationToken cancellationToken = default)
             where T : class
         {
             if (isMutation)
             {
-                return Mutation<T>(path, input);
+                return Mutation<T>(path, input, cancellationToken);
             }
 
-            return Query<T>(path, input);
+            return Query<T>(path, input, cancellationToken);
         }
 
-        public async Task<GraphQlResponse<JObject>> SendRequest(string query)
+        public async Task<GraphQlResponse<JObject>> SendRequest(string query,
+            CancellationToken cancellationToken = default)
         {
-            var httpResp = await HttpClient.PostAsync(GetUri(), new GraphQlRequest(query));
+            var httpResp = await HttpClient.PostAsync(GetUri(), new GraphQlRequest(query), cancellationToken);
 
             var contentResp = JObject.Parse(await httpResp.Content.ReadAsStringAsync(), new JsonLoadSettings());
             var errorList = new List<GraphQlError>();

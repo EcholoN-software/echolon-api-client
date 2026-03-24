@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Model;
 
@@ -14,7 +15,8 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             _baseClient = baseClient;
         }
 
-        public async Task<GraphQlResponse<string>> Get(string section, string module, string key)
+        public async Task<GraphQlResponse<string>> Get(string section, string module, string key,
+            CancellationToken cancellationToken = default)
         {
             if (section == null || module == null || key == null)
                 throw new ArgumentException();
@@ -22,7 +24,7 @@ namespace Eco.Echolon.ApiClient.Client.GraphQl
             {
                 { "section", section }, { "module", module }, { "key", key }
             };
-            return await _baseClient.Query<string>(new[] { "configurations", "get" }, input);
+            return await _baseClient.Query<string>(new[] { "configurations", "get" }, input, cancellationToken);
         }
     }
 }

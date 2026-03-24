@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using Eco.Echolon.ApiClient.Authentication;
 using Eco.Echolon.ApiClient.Model;
@@ -23,12 +24,13 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             _client = factory.CreateClient(Variables.HttpClientForApi);
         }
 
-        public async Task<ApiResult<FileKey>> CreateNewFile(FileInput input)
+        public async Task<ApiResult<FileKey>> CreateNewFile(FileInput input,
+            CancellationToken cancellationToken = default)
         {
             var url = _config.ApiUri + "/api/files/upload";
             var content = new StringContent(Serialize(input));
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await _client.PostAsync(url, content);
+            var response = await _client.PostAsync(url, content, cancellationToken);
 
             if (response.IsSuccessStatusCode && response.Content is not null)
             {
@@ -41,10 +43,11 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted<FileKey>(await ExtractFaults(response));
         }
 
-        public async Task<ApiResult> UploadFileData(FileKey key, Stream stream)
+        public async Task<ApiResult> UploadFileData(FileKey key, Stream stream,
+            CancellationToken cancellationToken = default)
         {
             var url = _config.ApiUri + $"/api/files/upload/{key}";
-            var response = await _client.PostAsync(url, new StreamContent(stream));
+            var response = await _client.PostAsync(url, new StreamContent(stream), cancellationToken);
 
             if (response.IsSuccessStatusCode)
                 return ApiResult.Success();
@@ -52,10 +55,11 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted(await ExtractFaults(response));
         }
 
-        public async Task<ApiResult<FormattedTextId>> StoreFormattedText(string formattedText)
+        public async Task<ApiResult<FormattedTextId>> StoreFormattedText(string formattedText,
+            CancellationToken cancellationToken = default)
         {
             var url = _config.ApiUri + "/api/formattedtexts/";
-            var response = await _client.PostAsync(url, new StringContent(formattedText));
+            var response = await _client.PostAsync(url, new StringContent(formattedText), cancellationToken);
 
             if (response.IsSuccessStatusCode && response.Content is not null)
             {
@@ -68,10 +72,11 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted<FormattedTextId>(await ExtractFaults(response));
         }
 
-        public async Task<ApiResult<string>> GetFormattedText(FormattedTextId id)
+        public async Task<ApiResult<string>> GetFormattedText(FormattedTextId id,
+            CancellationToken cancellationToken = default)
         {
             var url = _config.ApiUri + "/api/formattedtexts/" + id;
-            var response = await _client.GetAsync(url);
+            var response = await _client.GetAsync(url, cancellationToken);
 
             if (response.IsSuccessStatusCode)
                 return ApiResult.Success(await response.Content.ReadAsStringAsync());
@@ -79,13 +84,14 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted<string>(await ExtractFaults(response));
         }
 
-        public async Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, MediaTypeHeaderValue contentType)
+        public async Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, MediaTypeHeaderValue contentType,
+            CancellationToken cancellationToken = default)
         {
             var url = _config.ApiUri + "/api/formattedtexts/embedded";
             var content = new StreamContent(stream);
             content.Headers.ContentType = contentType;
 
-            var response = await _client.PostAsync(url, content);
+            var response = await _client.PostAsync(url, content, cancellationToken);
             
             if (response.IsSuccessStatusCode && response.Content is not null)
             {
@@ -98,11 +104,11 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted<EmbeddedResource>(await ExtractFaults(response));
         }
 
-        public async Task<ApiResult<WorkQueuePointer[]>> Get()
+        public async Task<ApiResult<WorkQueuePointer[]>> Get(CancellationToken cancellationToken = default)
         {
             var url = _config.ApiUri + "/api/working/queue";
 
-            var response = await _client.GetAsync(url);
+            var response = await _client.GetAsync(url, cancellationToken);
 
             if (response.IsSuccessStatusCode && response.Content is not null)
             {
@@ -115,10 +121,10 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted<WorkQueuePointer[]>(await ExtractFaults(response));
         }
 
-        public async Task<ApiResult> Dequeue(WorkingQueueId id)
+        public async Task<ApiResult> Dequeue(WorkingQueueId id, CancellationToken cancellationToken = default)
         {
             var url = _config.ApiUri + "/api/working/queue/" + id;
-            var r = await _client.DeleteAsync(url);
+            var r = await _client.DeleteAsync(url, cancellationToken);
 
             if (r.IsSuccessStatusCode)
                 return ApiResult.Success();
@@ -126,11 +132,11 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted(await ExtractFaults(r));
         }
 
-        public async Task<ApiResult<Version>> EcholonVersion()
+        public async Task<ApiResult<Version>> EcholonVersion(CancellationToken cancellationToken = default)
         {
             var url = _config.ApiUri + "/api/version/echolon";
 
-            var response = await _client.GetAsync(url);
+            var response = await _client.GetAsync(url, cancellationToken);
             
             if (response.IsSuccessStatusCode && response.Content is not null)
             {
@@ -143,9 +149,10 @@ namespace Eco.Echolon.ApiClient.Client.RestApi
             return ApiResult.Faulted<Version>(await ExtractFaults(response));
         }
 
-        public async Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, string fileName)
+        public async Task<ApiResult<EmbeddedResource>> UploadEmbedded(Stream stream, string fileName,
+            CancellationToken cancellationToken = default)
         {
-            return await UploadEmbedded(stream, GuessMimeTypeByName(fileName));
+            return await UploadEmbedded(stream, GuessMimeTypeByName(fileName), cancellationToken);
         }
 
         private MediaTypeHeaderValue GuessMimeTypeByName(string fileName)
